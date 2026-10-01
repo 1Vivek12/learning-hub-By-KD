@@ -1,0 +1,475 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum LiveClassStatus {
+  SCHEDULED
+  LIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum LessonType {
+  VIDEO
+  ARTICLE
+  PDF
+  QUIZ
+}
+
+enum LessonStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+enum CertificateStatus {
+  ISSUED
+  REVOKED
+}
+
+model User {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  role          Role      @default(STUDENT)
+  avatar        String?
+  preferences   Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  enrollments          Enrollment[]
+  orders               Order[]
+  progress             LessonProgress[]
+  certificates         Certificate[]
+  liveClassParticipant LiveClassParticipant[]
+  notifications        Notification[]
+  quizAttempts         QuizAttempt[]
+  lessonNotes          LessonNote[]
+  lessonBookmarks      LessonBookmark[]
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  role        Role
+  action      String   // e.g. 'create:course', 'delete:user'
+  resource    String   // e.g. 'Course', 'User'
+  createdAt   DateTime @default(now())
+  
+  @@unique([role, action, resource])
+}
+
+model Instructor {
+  id            String    @id @default(uuid())
+  name          String
+  titleEn       String
+  titleHi       String?
+  titleHinglish String?
+  bioEn         String
+  bioHi         String?
+  bioHinglish   String?
+  avatar        String?
+  company       String?
+  rating        Float     @default(0)
+  studentsCount Int       @default(0)
+  socials       Json?
+  
+  courses       Course[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  courses     Course[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Course {
+  id              String       @id @default(uuid())
+  slug            String       @unique
+  titleEn         String
+  titleHi         String?
+  titleHinglish   String?
+  descShortEn     String
+  descShortHi     String?
+  descShortHinglish String?
+  descLongEn      String
+  descLongHi      String?
+  descLongHinglish String?
+  
+  level           String
+  language        String
+  durationHours   Float
+  price           Float
+  originalPrice   Float?
+  discountPercent Int?
+  rating          Float        @default(0)
+  reviewsCount    Int          @default(0)
+  thumbnail       String?
+  heroBanner      String?
+  trailerUrl      String?
+  skills          String[]
+  learningOutcomes Json?       // Array of localized strings
+  requirements    Json?        // Array of localized strings
+  status          CourseStatus @default(DRAFT)
+  isFeatured      Boolean      @default(false)
+  isPopular       Boolean      @default(false)
+  
+  instructorId    String
+  instructor      Instructor   @relation(fields: [instructorId], references: [id])
+  categoryId      String?
+  category        Category?    @relation(fields: [categoryId], references: [id])
+  
+  modules         CourseModule[]
+  enrollments     Enrollment[]
+  orders          Order[]
+  liveClasses     LiveClass[]
+  lessonProgress  LessonProgress[]
+  
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+}
+
+model CourseModule {
+  id          String   @id @default(uuid())
+  titleEn     String
+  titleHi     String?
+  titleHinglish String?
+  order       Int
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     Lesson[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Lesson {
+  id              String   @id @default(uuid())
+  titleEn         String
+  titleHi         String?
+  titleHinglish   String?
+  slug            String   @unique
+  descriptionEn   String?
+  descriptionHi   String?
+  descriptionHinglish String?
+  type            LessonType @default(VIDEO)
+  status          LessonStatus @default(DRAFT)
+  durationMinutes Int
+  videoUrl        String?
+  isFreePreview   Boolean  @default(false)
+  order           Int
+  
+  moduleId        String
+  module          CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  
+  resources       LessonResource[]
+  progress        LessonProgress[]
+  quiz            Quiz?
+  videoAsset      VideoAsset?
+  notes           LessonNote[]
+  bookmarks       LessonBookmark[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model LessonResource {
+  id          String   @id @default(uuid())
+  name        String
+  url         String
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model Enrollment {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  status      EnrollmentStatus @default(ACTIVE)
+  enrolledAt  DateTime @default(now())
+  completedAt DateTime?
+  
+  @@unique([userId, courseId])
+}
+
+model LessonProgress {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  
+  isCompleted Boolean  @default(false)
+  percentage  Float    @default(0)
+  lastPosition Int     @default(0)
+  completedAt DateTime?
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([userId, lessonId])
+}
+
+model Order {
+  id              String        @id @default(uuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId        String
+  course          Course        @relation(fields: [courseId], references: [id])
+  amount          Float
+  discount        Float         @default(0)
+  couponId        String?
+  coupon          Coupon?       @relation(fields: [couponId], references: [id])
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentProvider String?
+  transactionRef  String?
+  payments        Payment[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  orderId         String
+  order           Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  amount          Float
+  status          PaymentStatus @default(PENDING)
+  provider        String
+  providerRef     String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Coupon {
+  id              String   @id @default(uuid())
+  code            String   @unique
+  discountPercent Int
+  isActive        Boolean  @default(true)
+  expiresAt       DateTime?
+  orders          Order[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Certificate {
+  id                String   @id @default(uuid())
+  certificateNumber String   @unique
+  userId            String
+  user              User     @relation(fields: [userId], references: [id])
+  courseId          String
+  courseTitle       String
+  enrollmentId      String   @unique
+  studentName       String
+  instructorName    String
+  qrVerificationUrl String
+  grade             String?
+  status            CertificateStatus @default(ISSUED)
+  verificationToken String   @unique
+  pdfUrl            String?
+  issuedAt          DateTime @default(now())
+  completedAt       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@unique([userId, courseId])
+}
+
+model LiveClass {
+  id                  String          @id @default(uuid())
+  roomId              String          @unique
+  titleEn             String
+  descriptionEn       String?
+  
+  instructorId        String
+  courseId            String
+  course              Course          @relation(fields: [courseId], references: [id])
+  
+  scheduledStartTime  DateTime
+  durationMinutes     Int
+  status              LiveClassStatus @default(SCHEDULED)
+  joinUrl             String?
+  maxParticipants     Int             @default(100)
+  currentParticipantsCount Int        @default(0)
+  recordingAvailable  Boolean         @default(false)
+  
+  participants        LiveClassParticipant[]
+  
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+}
+
+model LiveClassParticipant {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  liveClassId String
+  liveClass   LiveClass @relation(fields: [liveClassId], references: [id], onDelete: Cascade)
+  joinedAt    DateTime @default(now())
+  
+  @@unique([userId, liveClassId])
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  actor       String?  // user email or id
+  action      String
+  resource    String?
+  resourceId  String?
+  details     Json?
+  createdAt   DateTime @default(now())
+}
+
+model SiteSetting {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  value       Json
+  updatedAt   DateTime @updatedAt
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  message     String
+  type        String   // e.g. 'SYSTEM', 'COURSE_UPDATE', 'PAYMENT'
+  readAt      DateTime?
+  createdAt   DateTime @default(now())
+}
+
+model Quiz {
+  id              String   @id @default(uuid())
+  lessonId        String   @unique
+  lesson          Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  title           String
+  instructions    String?
+  passingScore    Int      @default(80)
+  timeLimitMins   Int?
+  
+  questions       QuizQuestion[]
+  attempts        QuizAttempt[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model QuizQuestion {
+  id          String   @id @default(uuid())
+  quizId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  text        String
+  points      Int      @default(10)
+  order       Int      @default(0)
+  options     QuizOption[]
+  answers     QuizAnswer[]
+}
+
+model QuizOption {
+  id          String   @id @default(uuid())
+  questionId  String
+  question    QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text        String
+  isCorrect   Boolean  @default(false)
+  order       Int      @default(0)
+}
+
+model QuizAttempt {
+  id          String   @id @default(uuid())
+  quizId      String
+  quiz        Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  score       Int      @default(0)
+  passed      Boolean  @default(false)
+  attemptNum  Int      @default(1)
+  
+  answers     QuizAnswer[]
+  
+  startedAt   DateTime @default(now())
+  completedAt DateTime?
+}
+
+model QuizAnswer {
+  id          String   @id @default(uuid())
+  attemptId   String
+  attempt     QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId  String
+  question    QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  selectedOptionId String?
+}
+
+model LessonNote {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  content     String
+  timestamp   Int?     // For video position in seconds
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model LessonBookmark {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId    String
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  title       String?
+  timestamp   Int      // For video position in seconds
+  createdAt   DateTime @default(now())
+}
+
+model VideoAsset {
+  id          String   @id @default(uuid())
+  lessonId    String   @unique
+  lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  provider    String   // e.g. 'MUX', 'VDOCIPHER'
+  providerRef String   // Provider asset ID
+  status      String   @default("processing")
+  duration    Float?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
