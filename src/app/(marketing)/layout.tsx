@@ -10,7 +10,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
   const router = useRouter();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0b0f19] text-slate-100 dark:bg-[#0b0f19] dark:text-slate-100 light:bg-slate-50 light:text-slate-900 transition-colors duration-300">
+    <div className="min-h-screen flex flex-col bg-white text-slate-900 dark:bg-[#0a0f1c] dark:text-slate-100 transition-colors duration-300">
       <Navbar
         currentRoute="home"
         onNavigate={(view) => {

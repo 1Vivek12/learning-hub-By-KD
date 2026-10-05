@@ -13,15 +13,15 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<Language>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('learninghub_language');
-      if (saved === 'en' || saved === 'hinglish' || saved === 'hi') {
-        return saved;
-      }
+  const [language, setLanguageState] = useState<Language>('en');
+
+  // Read saved language preference after hydration to avoid SSR mismatch
+  useEffect(() => {
+    const saved = localStorage.getItem('learninghub_language');
+    if (saved === 'en' || saved === 'hinglish' || saved === 'hi') {
+      setLanguageState(saved);
     }
-    return 'en';
-  });
+  }, []);
 
   const setLanguage = (lang: Language) => {
     setLanguageState(lang);
@@ -31,6 +31,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   useEffect(() => {
     document.documentElement.lang = language === 'hi' ? 'hi' : 'en';
   }, [language]);
+
 
   const t = (key: string, fallback?: string): string => {
     const dict = translations[language];

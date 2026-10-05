@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+@custom-variant dark (.dark &);
+@custom-variant light (.light &);
+
 @layer base {
   :root {
     --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;

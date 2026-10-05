@@ -640,47 +640,52 @@ export const VirtualClassroom: React.FC<VirtualClassroomProps> = ({
         <div className="flex items-center gap-3">
           <button
             onClick={handleToggleMic}
-            className={`p-3.5 rounded-full transition-all shadow-lg ${
+            className={`p-3.5 rounded-full transition-all shadow-lg focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none ${
               isMuted ? 'bg-rose-500 text-white' : 'bg-slate-800 hover:bg-slate-700 text-white border border-white/10'
             }`}
             title={isMuted ? 'Unmute' : 'Mute'}
+            aria-label={isMuted ? 'Unmute' : 'Mute'}
           >
             {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
           </button>
 
           <button
             onClick={handleToggleCamera}
-            className={`p-3.5 rounded-full transition-all shadow-lg ${
+            className={`p-3.5 rounded-full transition-all shadow-lg focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none ${
               isCameraOff ? 'bg-rose-500 text-white' : 'bg-slate-800 hover:bg-slate-700 text-white border border-white/10'
             }`}
             title={isCameraOff ? 'Turn on camera' : 'Turn off camera'}
+            aria-label={isCameraOff ? 'Turn on camera' : 'Turn off camera'}
           >
             {isCameraOff ? <CameraOff className="w-5 h-5" /> : <Camera className="w-5 h-5" />}
           </button>
 
           <button
             onClick={handleToggleScreenShare}
-            className={`p-3.5 rounded-full transition-all shadow-lg ${
+            className={`p-3.5 rounded-full transition-all shadow-lg focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none ${
               isScreenSharing ? 'bg-sky-500 text-slate-950 font-bold' : 'bg-slate-800 hover:bg-slate-700 text-white border border-white/10'
             }`}
             title={isScreenSharing ? 'Stop sharing' : 'Share screen'}
+            aria-label={isScreenSharing ? 'Stop sharing' : 'Share screen'}
           >
             <ScreenShare className="w-5 h-5" />
           </button>
 
           <button
             onClick={handleToggleHand}
-            className={`p-3.5 rounded-full transition-all shadow-lg ${
+            className={`p-3.5 rounded-full transition-all shadow-lg focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none ${
               isHandRaised ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 hover:bg-slate-700 text-white border border-white/10'
             }`}
             title={isHandRaised ? 'Lower hand' : 'Raise hand'}
+            aria-label={isHandRaised ? 'Lower hand' : 'Raise hand'}
           >
             <Hand className="w-5 h-5" />
           </button>
 
           <button
             onClick={handleLeave}
-            className="flex items-center gap-2 px-5 py-3 rounded-full bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-lg shadow-rose-600/30 transition-all active:scale-95"
+            className="flex items-center gap-2 px-5 py-3 rounded-full bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-lg shadow-rose-600/30 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
+            aria-label="Leave Classroom"
           >
             <PhoneOff className="w-4 h-4" />
             <span className="hidden sm:inline">Leave</span>
@@ -690,24 +695,26 @@ export const VirtualClassroom: React.FC<VirtualClassroomProps> = ({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setActiveSidebarTab(activeSidebarTab === 'chat' ? null : 'chat')}
-            className={`p-3 rounded-xl border transition-colors ${
+            className={`p-3 rounded-xl border transition-colors focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none ${
               activeSidebarTab === 'chat'
                 ? 'bg-sky-500/20 border-sky-500/40 text-sky-400'
                 : 'bg-slate-800/80 border-white/10 text-slate-400 hover:text-white'
             }`}
             title="Toggle Live Chat"
+            aria-label="Toggle Live Chat"
           >
             <MessageSquare className="w-4 h-4" />
           </button>
 
           <button
             onClick={() => setActiveSidebarTab(activeSidebarTab === 'participants' ? null : 'participants')}
-            className={`p-3 rounded-xl border transition-colors ${
+            className={`p-3 rounded-xl border transition-colors focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none ${
               activeSidebarTab === 'participants'
                 ? 'bg-sky-500/20 border-sky-500/40 text-sky-400'
                 : 'bg-slate-800/80 border-white/10 text-slate-400 hover:text-white'
             }`}
             title="Toggle Participants"
+            aria-label="Toggle Participants"
           >
             <Users className="w-4 h-4" />
           </button>

@@ -12,15 +12,16 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('learninghub_theme');
-      if (saved === 'dark' || saved === 'light') {
-        return saved;
-      }
+  const [theme, setThemeState] = useState<Theme>('light'); // Default to light
+
+  // Read saved theme preference after hydration to avoid SSR mismatch
+  useEffect(() => {
+    const saved = localStorage.getItem('learninghub_theme');
+    if (saved === 'dark' || saved === 'light') {
+      setThemeState(saved);
     }
-    return 'dark'; // Default to premium cinematic dark
-  });
+  }, []);
+
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);

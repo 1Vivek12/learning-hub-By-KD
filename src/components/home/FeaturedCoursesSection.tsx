@@ -84,8 +84,16 @@ export const FeaturedCoursesSection: React.FC<FeaturedCoursesSectionProps> = ({
 
       {/* Courses Cards Grid */}
       {filtered.length === 0 ? (
-        <div className="py-16 text-center text-slate-400">
-          <p className="text-base font-semibold">{t('course.noResults')}</p>
+        <div className="py-24 text-center max-w-xl mx-auto px-4">
+          <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">{t('courses.empty')}</h3>
+          <p className="text-slate-600 dark:text-slate-400 text-lg mb-8">{t('courses.emptyDesc')}</p>
+          <a
+            href="/paths"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-white bg-slate-900 hover:bg-slate-800 dark:text-slate-950 dark:bg-sky-400 dark:hover:bg-sky-300 transition-colors focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
+          >
+            {t('courses.emptyCta')}
+            <span className="ml-1">→</span>
+          </a>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

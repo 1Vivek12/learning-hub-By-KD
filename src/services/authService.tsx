@@ -1,12 +1,36 @@
 "use client";
+/**
+ * authService.tsx — Client-side UI auth context
+ *
+ * PURPOSE: This context provides UI-level state for:
+ *   - Displaying user name/avatar in Navbar
+ *   - Tracking client-side enrolled course IDs (for "Enroll" button state)
+ *   - Tracking completed lesson IDs (for progress indicators)
+ *   - A localStorage-based role-switch for LOCAL DEVELOPMENT ONLY
+ *
+ * SECURITY: This context is NOT used for any authorization decision in
+ *   production. All authorization is enforced server-side via NextAuth:
+ *   - Admin page (/admin) is guarded by useSession() — JWT cookie
+ *   - All /api/admin/* routes require ADMIN session via getApiAdmin()
+ *   - All /api/* student routes require a valid session via getApiSession()
+ *
+ * The localStorage role-switching (loginAsAdmin/loginAsStudent) is isolated
+ *   behind a development-only guard and cannot grant real server access.
+ */
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@/types';
 import { StorageService } from './storageService';
 
+const IS_DEV = process.env.NODE_ENV === 'development';
+
 interface AuthContextType {
   user: User;
+  // isAdmin is kept for legacy display-only consumers (e.g. Navbar avatar label)
+  // It MUST NOT be used for any access control. Use useSession() instead.
   isAdmin: boolean;
+  /** Dev-only: resets localStorage user to student persona. No-op in production. */
   loginAsStudent: () => void;
+  /** Dev-only: switches localStorage user to admin persona. No-op in production. */
   loginAsAdmin: () => void;
   logout: () => void;
   isEnrolled: (courseId: string) => boolean;
@@ -20,7 +44,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User>(() => StorageService.getCurrentUser());
 
-  // In Phase 2, sync the mock user's enrollments with the real database
+  // Sync enrolled course IDs from the real database (for UI enrollment state)
   useEffect(() => {
     fetch('/api/enrollments')
       .then(res => res.json())
@@ -30,10 +54,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setUser(prev => ({ ...prev, enrolledCourseIds: courseIds }));
         }
       })
-      .catch(console.error);
+      .catch(() => {
+        // Silently fail — user may not be authenticated, API returns 401
+      });
   }, []);
 
+  /**
+   * DEV-ONLY: Reset to student persona.
+   * In production this is a no-op to prevent client-side role manipulation.
+   */
   const loginAsStudent = () => {
+    if (!IS_DEV) return;
     const studentUser: User = {
       id: 'usr-student-1',
       name: 'Aarav Sharma',
@@ -48,11 +79,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     StorageService.saveCurrentUser(studentUser);
   };
 
+  /**
+   * DEV-ONLY: Switch to admin persona for UI development.
+   * In production this is a no-op. It CANNOT grant real API or /admin access.
+   * Admin page uses useSession() which reads from the server-signed JWT cookie.
+   */
   const loginAsAdmin = () => {
+    if (!IS_DEV) return;
     const adminUser: User = {
       id: 'usr-admin-super',
-      name: 'Victoria Vance (Super Admin)',
-      email: 'admin@learninghub.io',
+      name: 'Dev Admin (Local Only)',
+      email: 'dev-admin@localhost',
       role: 'admin',
       avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80',
       enrolledCourseIds: [],
@@ -64,11 +101,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    loginAsStudent();
+    if (IS_DEV) loginAsStudent();
   };
 
   const isEnrolled = (courseId: string): boolean => {
-    if (user.role === 'admin') return true;
     return user.enrolledCourseIds.includes(courseId);
   };
 
@@ -105,7 +141,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider
       value={{
         user,
-        isAdmin: user.role === 'admin',
+        // NOTE: isAdmin here reflects localStorage state only (for dev mode UI)
+        // Do NOT use this for any gate-keeping. Use useSession() for real auth checks.
+        isAdmin: IS_DEV && user.role === 'admin',
         loginAsStudent,
         loginAsAdmin,
         logout,

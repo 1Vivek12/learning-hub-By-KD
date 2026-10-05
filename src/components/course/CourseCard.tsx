@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Course, Instructor } from '@/types';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useAuth } from '@/services/authService';
@@ -27,7 +28,7 @@ export const CourseCard: React.FC<CourseCardProps> = ({
       className="group relative flex flex-col rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl bg-[#0f172a]/90 border-white/10 hover:border-sky-500/40 hover:shadow-sky-500/10 dark:bg-[#0f172a]/90 dark:border-white/10 dark:hover:border-sky-500/40 light:bg-white light:border-slate-200 light:hover:border-sky-400 light:hover:shadow-slate-200"
     >
       {/* Thumbnail Container */}
-      <div className="relative aspect-video w-full overflow-hidden cursor-pointer" onClick={() => onSelect(course.slug)}>
+      <Link href={`/courses/${course.slug}`} className="relative aspect-video w-full overflow-hidden block focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none">
         <img
           src={course.thumbnail}
           alt={course.title.en}
@@ -51,17 +52,17 @@ export const CourseCard: React.FC<CourseCardProps> = ({
         <div className="absolute bottom-3 right-3 text-[11px] font-medium px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm text-slate-300 border border-white/10">
           {course.level}
         </div>
-      </div>
+      </Link>
 
       {/* Card Content */}
       <div className="flex flex-col flex-1 p-5 space-y-3">
         {/* Title */}
-        <h3
-          onClick={() => onSelect(course.slug)}
-          className="text-base font-bold line-clamp-2 cursor-pointer transition-colors text-white group-hover:text-sky-400 dark:text-white dark:group-hover:text-sky-400 light:text-slate-900 light:group-hover:text-sky-600"
+        <Link
+          href={`/courses/${course.slug}`}
+          className="text-base font-bold line-clamp-2 transition-colors text-white group-hover:text-sky-400 dark:text-white dark:group-hover:text-sky-400 light:text-slate-900 light:group-hover:text-sky-600 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none rounded"
         >
           {l(course.title)}
-        </h3>
+        </Link>
 
         {/* Short Description */}
         <p className="text-xs text-slate-400 dark:text-slate-400 light:text-slate-600 line-clamp-2 leading-relaxed">
@@ -123,17 +124,17 @@ export const CourseCard: React.FC<CourseCardProps> = ({
           </div>
 
           {enrolled ? (
-            <button
-              onClick={() => onSelect(course.slug)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 hover:bg-emerald-500/25 transition-all"
+            <Link
+              href={`/learn/${course.slug}`}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 hover:bg-emerald-500/25 transition-all focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:outline-none"
             >
               <CheckCircle2 className="w-3.5 h-3.5" />
               <span>{t('course.continue')}</span>
-            </button>
+            </Link>
           ) : (
             <button
               onClick={() => (onEnrollClick ? onEnrollClick(course) : onSelect(course.slug))}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-slate-950 bg-gradient-to-r from-sky-400 to-teal-300 hover:opacity-95 shadow-sm transition-all"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-semibold text-slate-950 bg-gradient-to-r from-sky-400 to-teal-300 hover:opacity-95 shadow-sm transition-all focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
             >
               <span>{t('course.enrollNow')}</span>
               <ArrowRight className="w-3 h-3" />

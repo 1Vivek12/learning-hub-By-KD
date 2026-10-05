@@ -5,6 +5,11 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log('Start seeding...');
+  
+  if (process.env.NODE_ENV === 'production') {
+    console.log('Production environment detected. Seeding is disabled.');
+    return;
+  }
 
   // 1. Categories
   const categoryExcel = await prisma.category.upsert({
@@ -51,8 +56,8 @@ async function main() {
   });
 
   // 3. Development Users
-  const adminPassword = await bcrypt.hash('admin123', 10);
-  const studentPassword = await bcrypt.hash('student123', 10);
+  const adminPassword = await bcrypt.hash(process.env.TEST_ADMIN_PASS || 'DevAdmin@123!', 10);
+  const studentPassword = await bcrypt.hash(process.env.TEST_STUDENT_PASS || 'DevStudent@123!', 10);
 
   const admin = await prisma.user.upsert({
     where: { email: 'admin@learninghub.dev' },

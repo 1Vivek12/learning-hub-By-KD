@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useTheme } from '@/theme/ThemeContext';
 import { useAuth } from '@/services/authService';
+import { useSession, signOut } from 'next-auth/react';
 import { Language } from '@/types';
 import {
   Search,
@@ -17,6 +19,7 @@ import {
   Menu,
   X,
   Layers,
+  Settings,
 } from 'lucide-react';
 import { NotificationDropdown } from '@/components/dashboard/NotificationDropdown';
 
@@ -30,56 +33,45 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onNavigate, curren
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme, isDark } = useTheme();
   const { user, isAdmin, loginAsStudent, loginAsAdmin } = useAuth();
-  const [isLangOpen, setIsLangOpen] = useState(false);
+  const { data: session } = useSession();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { label: t('nav.courses'), route: 'courses', icon: BookOpen },
-    { label: t('nav.learningPaths'), route: 'paths', icon: Compass },
+    { label: t('nav.courses'), route: 'courses', href: '/courses', icon: BookOpen },
+    { label: t('nav.learningPaths'), route: 'paths', href: '/paths', icon: Compass },
     {
       label: t('nav.liveClasses'),
       route: 'live-list',
+      href: '/live-list',
       icon: Radio,
-      badge: 'LIVE',
-    },
-    { label: t('nav.dashboard'), route: 'dashboard', icon: User },
-    {
-      label: t('nav.admin'),
-      route: 'admin',
-      icon: ShieldCheck,
-      adminOnly: true,
     },
   ];
 
   const handleLanguageChange = (lang: Language) => {
     setLanguage(lang);
-    setIsLangOpen(false);
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b backdrop-blur-xl transition-colors duration-300 bg-[#0b0f19]/85 border-white/10 dark:bg-[#0b0f19]/85 dark:border-white/10 light:bg-white/90 light:border-slate-200">
+    <header className="sticky top-0 z-40 w-full border-b backdrop-blur-xl transition-colors duration-300 bg-white/90 border-slate-200 dark:bg-[#0a0f1c]/90 dark:border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-16 lg:h-[4.5rem]">
           {/* Brand Logo */}
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => onNavigate('home')}>
-            <div className="relative flex items-center justify-center w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-500 via-sky-500 to-emerald-400 p-[2px] shadow-lg shadow-sky-500/20">
-              <div className="w-full h-full rounded-[10px] bg-slate-950 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-sky-400 animate-pulse" />
-              </div>
+          <Link 
+            href="/"
+            className="flex items-center gap-3 rounded-lg focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
+            aria-label="Home"
+          >
+            <div className="w-10 h-10 rounded-xl bg-sky-100 dark:bg-sky-500/10 flex items-center justify-center border border-sky-200 dark:border-sky-500/20">
+              <Sparkles className="w-5 h-5 text-sky-700 dark:text-sky-400" />
             </div>
             <div className="flex flex-col">
-              <span className="font-display text-xl font-bold tracking-tight text-white dark:text-white light:text-slate-900 flex items-center gap-1.5">
+              <span className="text-lg font-bold tracking-tight text-slate-900 dark:text-white">
                 Learning Hub
-                <span className="text-[10px] uppercase font-mono tracking-wider px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/30">
-                  3D PRO
-                </span>
               </span>
-              <span className="text-[10px] text-slate-400 font-medium hidden sm:inline -mt-1">by KD</span>
-              <span className="text-[11px] text-slate-400 -mt-0.5 hidden sm:inline">
-                Cinematic EdTech & Live Classes
-              </span>
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider -mt-1 hidden sm:inline">by KD</span>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-1 lg:gap-2">
@@ -87,137 +79,147 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onNavigate, curren
               const Icon = item.icon;
               const isActive = currentRoute === item.route;
               return (
-                <button
+                <Link
                   key={item.route}
                   id={`nav-link-${item.route}`}
-                  onClick={() => onNavigate(item.route)}
-                  className={`relative flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-all ${
+                  href={item.href}
+                  className={`relative flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none ${
                     isActive
-                      ? 'text-sky-400 bg-sky-500/10 border border-sky-500/20 shadow-sm'
-                      : 'text-slate-300 hover:text-white hover:bg-white/5 dark:text-slate-300 dark:hover:text-white light:text-slate-700 light:hover:text-slate-950 light:hover:bg-slate-100'
+                      ? 'text-sky-700 bg-sky-50 dark:text-sky-400 dark:bg-sky-500/10'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-white/5'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-sky-400' : 'text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-sky-700 dark:text-sky-400' : 'text-slate-400'}`} />
                   <span>{item.label}</span>
-                  {item.badge && (
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
-                    </span>
-                  )}
-                </button>
+                </Link>
               );
             })}
           </nav>
 
-          {/* Search, Language, Theme, Role Switcher, Auth */}
+          {/* Search, Actions, Settings */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Global Search Button */}
             <button
               id="global-search-trigger"
               onClick={onOpenSearch}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg border text-xs text-slate-400 transition-colors bg-slate-900/60 border-white/10 hover:border-sky-500/40 hover:text-slate-200 dark:bg-slate-900/60 dark:border-white/10 light:bg-slate-100 light:border-slate-300 light:text-slate-600"
+              aria-label="Search courses"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg border text-xs text-slate-500 transition-colors bg-slate-50 border-slate-200 hover:border-slate-400 hover:text-slate-900 dark:bg-slate-900/60 dark:border-white/10 dark:text-slate-400 dark:hover:border-white/20 dark:hover:text-white focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
               title="Search courses (Cmd+K)"
             >
               <Search className="w-3.5 h-3.5" />
-              <span className="hidden xl:inline">{t('nav.searchPlaceholder')}</span>
-              <kbd className="hidden lg:inline text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">
+              <span className="hidden xl:inline">{t('nav.searchPlaceholder', 'Search')}</span>
+              <kbd className="hidden lg:inline text-[10px] bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded border border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700">
                 ⌘K
               </kbd>
             </button>
 
-            {/* Language Switcher Dropdown */}
+            {user && <NotificationDropdown />}
+
+            {/* User Settings Dropdown */}
             <div className="relative">
               <button
-                id="language-switcher-button"
-                onClick={() => setIsLangOpen(!isLangOpen)}
-                className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg border text-xs font-semibold uppercase tracking-wider transition-all bg-slate-900/60 border-white/10 text-slate-200 hover:border-sky-500/30 dark:bg-slate-900/60 dark:border-white/10 light:bg-slate-100 light:border-slate-300 light:text-slate-800"
+                onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+                aria-label="User Settings"
+                aria-expanded={isSettingsOpen}
+                className="p-2 rounded-lg border text-slate-600 transition-colors bg-slate-50 border-slate-200 hover:border-slate-400 dark:bg-slate-900/60 dark:border-white/10 dark:text-slate-300 dark:hover:border-white/20 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
               >
-                <Globe className="w-3.5 h-3.5 text-sky-400" />
-                <span>{language === 'hinglish' ? 'HING' : language.toUpperCase()}</span>
+                <Settings className="w-4 h-4" />
               </button>
 
-              {isLangOpen && (
-                <div className="absolute right-0 mt-2 w-36 rounded-xl shadow-2xl py-1 z-50 border backdrop-blur-xl bg-slate-900/95 border-white/15 dark:bg-slate-900/95 dark:border-white/15 light:bg-white light:border-slate-200">
-                  <button
-                    onClick={() => handleLanguageChange('en')}
-                    className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between transition-colors ${
-                      language === 'en'
-                        ? 'bg-sky-500/15 text-sky-400 font-semibold'
-                        : 'text-slate-300 hover:bg-white/5 dark:text-slate-300 light:text-slate-700 light:hover:bg-slate-50'
-                    }`}
-                  >
-                    <span>English</span>
-                    {language === 'en' && <span className="text-[10px]">✓</span>}
-                  </button>
-                  <button
-                    onClick={() => handleLanguageChange('hinglish')}
-                    className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between transition-colors ${
-                      language === 'hinglish'
-                        ? 'bg-sky-500/15 text-sky-400 font-semibold'
-                        : 'text-slate-300 hover:bg-white/5 dark:text-slate-300 light:text-slate-700 light:hover:bg-slate-50'
-                    }`}
-                  >
-                    <span>Hinglish</span>
-                    {language === 'hinglish' && <span className="text-[10px]">✓</span>}
-                  </button>
-                  <button
-                    onClick={() => handleLanguageChange('hi')}
-                    className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between transition-colors ${
-                      language === 'hi'
-                        ? 'bg-sky-500/15 text-sky-400 font-semibold'
-                        : 'text-slate-300 hover:bg-white/5 dark:text-slate-300 light:text-slate-700 light:hover:bg-slate-50'
-                    }`}
-                  >
-                    <span>हिन्दी (Hindi)</span>
-                    {language === 'hi' && <span className="text-[10px]">✓</span>}
-                  </button>
+              {isSettingsOpen && (
+                <div className="absolute right-0 mt-2 w-56 rounded-xl shadow-2xl py-2 z-50 border backdrop-blur-xl bg-white border-slate-200 dark:bg-slate-900/95 dark:border-white/15">
+                  <div className="px-4 py-2 border-b border-slate-100 dark:border-white/10 mb-2">
+                    <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{user?.name || 'Guest'}</p>
+                    <p className="text-[10px] text-slate-400 truncate">{user?.email}</p>
+                  </div>
+
+                  <div className="px-2 space-y-1">
+                    <button
+                      onClick={toggleTheme}
+                      className="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center justify-between text-slate-700 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-white/5 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
+                    >
+                      <div className="flex items-center gap-2">
+                        {isDark ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-sky-600" />}
+                        <span>Toggle Theme</span>
+                      </div>
+                    </button>
+
+                    <div className="pt-1 pb-1">
+                      <p className="px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Language</p>
+                      {['en', 'hinglish', 'hi'].map(lang => (
+                        <button
+                          key={lang}
+                          onClick={() => handleLanguageChange(lang as Language)}
+                          className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center justify-between transition-colors focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none ${
+                            language === lang
+                              ? 'bg-sky-50 text-sky-700 font-semibold dark:bg-sky-500/15 dark:text-sky-400'
+                              : 'text-slate-600 hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-white/5'
+                          }`}
+                        >
+                          <span>{lang === 'hi' ? 'हिन्दी' : lang.toUpperCase()}</span>
+                          {language === lang && <span className="text-[10px]">✓</span>}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Dev-only role switcher — not rendered in production builds */}
+                    {process.env.NODE_ENV === 'development' && (
+                      <div className="pt-2 mt-2 border-t border-slate-100 dark:border-white/10">
+                        <button
+                          onClick={() => {
+                            if (isAdmin) loginAsStudent();
+                            else loginAsAdmin();
+                            setIsSettingsOpen(false);
+                          }}
+                          className="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center gap-2 text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-500/10 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
+                        >
+                          <User className="w-3.5 h-3.5" />
+                          <span>[DEV] Switch to {isAdmin ? 'Student' : 'Admin'} View</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Theme Toggle (Dark / Light) */}
-            <button
-              id="theme-toggle-button"
-              onClick={toggleTheme}
-              className="p-2 rounded-lg border text-slate-300 transition-colors bg-slate-900/60 border-white/10 hover:border-sky-500/30 hover:text-white dark:bg-slate-900/60 dark:border-white/10 dark:text-slate-300 light:bg-slate-100 light:border-slate-300 light:text-slate-700"
-              title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
-            >
-              {isDark ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-sky-600" />}
-            </button>
-
-            {user && <NotificationDropdown />}
-
-            {/* Role Quick Toggle for effortless evaluation */}
-            <button
-              id="role-switch-button"
-              onClick={() => (isAdmin ? loginAsStudent() : loginAsAdmin())}
-              className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold transition-all ${
-                isAdmin
-                  ? 'bg-purple-500/20 border-purple-500/40 text-purple-300 hover:bg-purple-500/30'
-                  : 'bg-emerald-500/15 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/25'
-              }`}
-              title="Toggle current persona to test student vs admin permissions"
-            >
-              {isAdmin ? <ShieldCheck className="w-3.5 h-3.5" /> : <User className="w-3.5 h-3.5" />}
-              <span>{isAdmin ? 'Admin View' : 'Student View'}</span>
-            </button>
-
-            {/* CTA / Dashboard link */}
-            <button
-              id="nav-primary-cta"
-              onClick={() => onNavigate(isAdmin ? 'admin' : 'dashboard')}
-              className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider text-slate-950 bg-gradient-to-r from-sky-400 via-teal-300 to-emerald-400 hover:opacity-95 shadow-md shadow-sky-500/20 transition-all active:scale-95"
-            >
-              <Layers className="w-3.5 h-3.5" />
-              <span>{isAdmin ? 'Admin CMS' : t('nav.dashboard')}</span>
-            </button>
+            {/* Dashboard / Auth CTAs */}
+            {session ? (
+              <>
+                <Link
+                  id="nav-primary-cta"
+                  href="/dashboard"
+                  className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 dark:text-slate-950 dark:bg-sky-400 dark:hover:bg-sky-300 transition-colors focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>{t('nav.dashboard', 'Dashboard')}</span>
+                </Link>
+                <button
+                  id="nav-signout-btn"
+                  onClick={() => signOut({ callbackUrl: '/' })}
+                  className="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-300 dark:hover:text-white dark:hover:bg-white/5 transition-colors focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
+                >
+                  <span>{t('nav.logout', 'Sign Out')}</span>
+                </button>
+              </>
+            ) : (
+              <Link
+                id="nav-signin-btn"
+                href="/login"
+                className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 dark:text-slate-950 dark:bg-sky-400 dark:hover:bg-sky-300 transition-colors focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
+              >
+                <User className="w-3.5 h-3.5" />
+                <span>{t('nav.login', 'Sign In')}</span>
+              </Link>
+            )}
 
             {/* Mobile Menu Trigger */}
             <button
               id="mobile-menu-toggle"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg border border-white/10 text-slate-300 hover:text-white"
+              aria-label="Toggle Mobile Menu"
+              aria-expanded={isMobileMenuOpen}
+              className="md:hidden p-2 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 dark:border-white/10 dark:text-slate-300 dark:hover:text-white focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -226,39 +228,30 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onNavigate, curren
 
         {/* Mobile Navigation Drawer */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-white/10 space-y-2">
+          <div className="md:hidden py-4 border-t border-slate-200 dark:border-white/10 space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
-                <button
+                <Link
                   key={item.route}
-                  onClick={() => {
-                    onNavigate(item.route);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-sm text-slate-300 hover:bg-white/5 hover:text-white"
+                  href={item.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
                 >
-                  <div className="flex items-center gap-3">
-                    <Icon className="w-4 h-4 text-sky-400" />
-                    <span>{item.label}</span>
-                  </div>
-                  {item.badge && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30">
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
+                  <Icon className="w-4 h-4 text-slate-400" />
+                  <span>{item.label}</span>
+                </Link>
               );
             })}
-            <div className="pt-2 border-t border-white/10 flex items-center justify-between px-4">
-              <span className="text-xs text-slate-400">Current Role:</span>
-              <button
-                onClick={() => (isAdmin ? loginAsStudent() : loginAsAdmin())}
-                className="text-xs font-semibold px-2.5 py-1 rounded bg-white/10 text-white"
-              >
-                Switch to {isAdmin ? 'Student' : 'Admin'}
-              </button>
-            </div>
+            
+            <Link
+              href="/dashboard"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-white/5 dark:hover:text-white focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
+            >
+              <Layers className="w-4 h-4 text-slate-400" />
+              <span>{t('nav.dashboard', 'Dashboard')}</span>
+            </Link>
           </div>
         )}
       </div>

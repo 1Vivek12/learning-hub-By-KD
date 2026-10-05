@@ -4,6 +4,7 @@ import "../index.css";
 import { ThemeProvider } from "@/theme/ThemeContext";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 import { AuthProvider } from "@/services/authService";
+import { NextAuthProvider } from "@/components/providers/NextAuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -87,9 +88,11 @@ export default function RootLayout({
         />
         <ThemeProvider>
           <LanguageProvider>
-            <AuthProvider>
-              {children}
-            </AuthProvider>
+            <NextAuthProvider>
+              <AuthProvider>
+                {children}
+              </AuthProvider>
+            </NextAuthProvider>
           </LanguageProvider>
         </ThemeProvider>
       </body>

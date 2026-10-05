@@ -25,7 +25,7 @@ export const AdminOverview: React.FC<{ onNavigateTab: (tab: string) => void }> =
     fetch('/api/admin/audit-logs').then(r => r.json()).then(d => setLogs(d.logs || [])).catch(console.error);
   }, []);
 
-  const totalRevenue = stats.revenue;
+  const totalRevenue = stats.revenue ?? 0;
   const activeLiveCount = 0; // Will be connected in live class phase
   const courses: any[] = [];
   const orders: any[] = [];
