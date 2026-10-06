@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Course, LiveClass, Certificate } from '@/types';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { useAuth } from '@/services/authService';
+import { useSession } from 'next-auth/react';
 import {
   Play,
   BookOpen,
@@ -30,7 +30,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   onViewCertificate,
 }) => {
   const { t, l } = useLanguage();
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
 
   const [allCourses, setAllCourses] = useState<any[]>([]);
   const [enrolledCourses, setEnrolledCourses] = useState<any[]>([]);
@@ -67,7 +68,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             Student Portal
           </p>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            {t('dashboard.welcome')} {user.name.split(' ')[0]} 👋
+            {t('dashboard.welcome')} {user?.name?.split(' ')[0] || ''} 👋
           </h1>
           <p className="text-base text-slate-600 dark:text-slate-400 max-w-2xl">
             Track your enterprise analytics skills, participate in interactive masterclasses, and earn verified credentials.

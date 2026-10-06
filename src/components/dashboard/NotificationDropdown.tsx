@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, Check, Trash2, ExternalLink } from 'lucide-react';
-import { useAuth } from '@/services/authService';
+import { useSession } from 'next-auth/react';
 
 export const NotificationDropdown: React.FC = () => {
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   const [notifications, setNotifications] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);

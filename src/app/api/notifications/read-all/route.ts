@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
     
-    await NotificationService.markAllAsRead((session!.user as any).id);
+    await NotificationService.markAllAsRead(session!.user.id);
     
     return NextResponse.json({ success: true });
   } catch (error: any) {

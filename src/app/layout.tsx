@@ -3,13 +3,13 @@ import { Inter } from "next/font/google";
 import "../index.css";
 import { ThemeProvider } from "@/theme/ThemeContext";
 import { LanguageProvider } from "@/i18n/LanguageContext";
-import { AuthProvider } from "@/services/authService";
+
 import { NextAuthProvider } from "@/components/providers/NextAuthProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://learninghub.io'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://learning-hub-by-kd.vercel.app'),
   title: {
     default: "Learning Hub - Cinematic EdTech",
     template: "%s | Learning Hub",
@@ -58,10 +58,10 @@ export default function RootLayout({
     '@graph': [
       {
         '@type': 'Organization',
-        '@id': 'https://learninghub.io/#organization',
+        '@id': 'https://learning-hub-by-kd.vercel.app/#organization',
         name: 'Learning Hub',
-        url: 'https://learninghub.io',
-        logo: 'https://learninghub.io/logo.png',
+        url: 'https://learning-hub-by-kd.vercel.app',
+        logo: 'https://learning-hub-by-kd.vercel.app/logo.png',
         sameAs: [
           'https://twitter.com/learninghub',
           'https://linkedin.com/company/learninghub'
@@ -69,11 +69,11 @@ export default function RootLayout({
       },
       {
         '@type': 'WebSite',
-        '@id': 'https://learninghub.io/#website',
-        url: 'https://learninghub.io',
+        '@id': 'https://learning-hub-by-kd.vercel.app/#website',
+        url: 'https://learning-hub-by-kd.vercel.app',
         name: 'Learning Hub',
         publisher: {
-          '@id': 'https://learninghub.io/#organization'
+          '@id': 'https://learning-hub-by-kd.vercel.app/#organization'
         }
       }
     ]
@@ -89,9 +89,7 @@ export default function RootLayout({
         <ThemeProvider>
           <LanguageProvider>
             <NextAuthProvider>
-              <AuthProvider>
                 {children}
-              </AuthProvider>
             </NextAuthProvider>
           </LanguageProvider>
         </ThemeProvider>

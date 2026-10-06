@@ -13,7 +13,7 @@ export class CourseService {
   }
 
   static async getCourseBySlug(slug: string) {
-    return prisma.course.findUnique({
+    const course = await prisma.course.findUnique({
       where: { slug },
       include: {
         instructor: true,
@@ -21,6 +21,7 @@ export class CourseService {
         modules: {
           include: {
             lessons: {
+              where: { status: 'PUBLISHED' }, // Security Fix: Exclude DRAFT lessons
               orderBy: { order: 'asc' },
             },
           },
@@ -28,6 +29,13 @@ export class CourseService {
         },
       },
     });
+
+    // Security Fix: Do not expose unpublished courses to public queries
+    if (course && course.status !== 'PUBLISHED') {
+      return null;
+    }
+
+    return course;
   }
 
   static async getCourseById(id: string) {

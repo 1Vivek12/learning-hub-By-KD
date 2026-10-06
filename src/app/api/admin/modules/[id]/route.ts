@@ -9,9 +9,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { session, errorResponse } = await getApiAdmin();
     if (errorResponse) return errorResponse;
     const body = await request.json();
-    const mod = await prisma.courseModule.update({ where: { id: resolvedParams.id }, data: body });
+    const safeData: any = {};
+    const allowedFields = ['titleEn', 'titleHi', 'titleHinglish', 'order'];
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        safeData[field] = body[field];
+      }
+    }
+    const mod = await prisma.courseModule.update({ where: { id: resolvedParams.id }, data: safeData });
     await AuditService.log({
-      actor: (session!.user as any)?.email,
+      actor: session!.user?.email ?? undefined,
       action: 'MODULE_UPDATED',
       resource: 'CourseModule',
       resourceId: resolvedParams.id,
@@ -46,7 +53,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     // Cascade delete is defined in Prisma schema (module -> lessons)
     await prisma.courseModule.delete({ where: { id: resolvedParams.id } });
     await AuditService.log({
-      actor: (session!.user as any)?.email,
+      actor: session!.user?.email ?? undefined,
       action: 'MODULE_DELETED',
       resource: 'CourseModule',
       resourceId: resolvedParams.id,

@@ -1,10 +1,11 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
 import { DollarSign, Search, RotateCcw, Loader2, AlertCircle } from 'lucide-react';
-import { useAuth } from '@/services/authService';
+import { useSession } from 'next-auth/react';
 
 export const AdminOrders: React.FC = () => {
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   const [orders, setOrders] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);

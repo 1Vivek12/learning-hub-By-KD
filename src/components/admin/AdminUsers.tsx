@@ -1,10 +1,11 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
 import { Users, Search, Loader2, AlertCircle, Shield, CheckCircle2, UserX } from 'lucide-react';
-import { useAuth } from '@/services/authService';
+import { useSession } from 'next-auth/react';
 
 export const AdminUsers: React.FC = () => {
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   
   const [activeTab, setActiveTab] = useState<'users' | 'enrollments'>('users');
 

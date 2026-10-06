@@ -7,8 +7,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   try {
     const { session, errorResponse } = await getApiInstructor();
     if (errorResponse) return errorResponse;
-    const userId = (session!.user as any).id;
-    const role = (session!.user as any).role;
+    const userId = session!.user.id;
+    const role = session!.user.role;
 
     const liveClass = await LiveClassService.endClass(userId, role, resolvedParams.id);
     return NextResponse.json(liveClass);

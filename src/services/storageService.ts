@@ -890,7 +890,7 @@ const INITIAL_SETTINGS: SiteSettings = {
     hi: 'नेक्स्ट-जेन 3D इंटरएक्टिव शिक्षा मंच',
   },
   logoText: 'Learning Hub',
-  supportEmail: 'admissions@learninghub.io',
+  supportEmail: 'admissions@learning-hub-by-kd.vercel.app',
   supportPhone: '+1 (800) 555-DATA',
   currencySymbol: '₹',
   currencyCode: 'INR',
@@ -984,7 +984,7 @@ const INITIAL_CERTIFICATES: Certificate[] = [
     instructorName: 'Rohan Deshmukh',
     completionDate: '2026-09-10',
     grade: 'Exemplary (98%)',
-    qrVerificationUrl: 'https://learninghub.io/verify/CERT-SF-2026-9041',
+    qrVerificationUrl: 'https://learning-hub-by-kd.vercel.app/verify/CERT-SF-2026-9041',
   },
 ];
 
@@ -992,7 +992,7 @@ const INITIAL_CERTIFICATES: Certificate[] = [
 const INITIAL_AUDIT_LOGS: AuditLog[] = [
   {
     id: 'log-1',
-    adminEmail: 'admin@learninghub.io',
+    adminEmail: 'admin@learning-hub-by-kd.vercel.app',
     action: 'PUBLISH_COURSE',
     resource: 'course-excel-mastery',
     details: 'Course published to production catalog with updated discount rate.',
@@ -1000,7 +1000,7 @@ const INITIAL_AUDIT_LOGS: AuditLog[] = [
   },
   {
     id: 'log-2',
-    adminEmail: 'admin@learninghub.io',
+    adminEmail: 'admin@learning-hub-by-kd.vercel.app',
     action: 'CREATE_LIVE_CLASS',
     resource: 'live-excel-strategy',
     details: 'Generated secure room ID excel-live-890 with WebRTC SFU endpoint.',
@@ -1271,7 +1271,7 @@ export class StorageService {
     const logs = this.getAuditLogs();
     const newLog: AuditLog = {
       id: `log-${Date.now()}`,
-      adminEmail: 'admin@learninghub.io',
+      adminEmail: 'admin@learning-hub-by-kd.vercel.app',
       action,
       resource,
       details,
@@ -1327,7 +1327,7 @@ export class StorageService {
             instructorName: 'Learning Hub Faculty',
             completionDate: new Date().toISOString().split('T')[0],
             grade: 'Distinction (96%)',
-            qrVerificationUrl: `https://learninghub.io/verify/CERT-SF-${Date.now().toString().slice(-6)}`,
+            qrVerificationUrl: `https://learning-hub-by-kd.vercel.app/verify/CERT-SF-${Date.now().toString().slice(-6)}`,
           };
           this.awardCertificate(cert);
         }

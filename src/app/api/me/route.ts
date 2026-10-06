@@ -7,7 +7,7 @@ export async function GET() {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
     const user = await prisma.user.findUnique({
-      where: { id: (session!.user as any).id },
+      where: { id: session!.user.id },
       select: {
         id: true,
         name: true,
@@ -31,7 +31,7 @@ export async function PATCH(request: Request) {
     const { name, avatar } = body;
     
     const user = await prisma.user.update({
-      where: { id: (session!.user as any).id },
+      where: { id: session!.user.id },
       data: {
         ...(name && { name }),
         ...(avatar !== undefined && { avatar }),

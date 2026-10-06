@@ -9,7 +9,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
   try {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
-    const userId = (session!.user as any).id;
+    const userId = session!.user.id;
     
     const progress = await prisma.lessonProgress.findUnique({
       where: { userId_lessonId: { userId, lessonId: resolvedParams.lessonId } }
@@ -27,7 +27,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ les
   try {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
-    const userId = (session!.user as any).id;
+    const userId = session!.user.id;
     const body = await request.json();
     const { currentPosition, percentage } = body;
     

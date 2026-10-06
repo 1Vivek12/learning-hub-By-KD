@@ -11,7 +11,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const course = await CourseService.unpublishCourse(resolvedParams.id);
 
     await AuditService.log({
-      actor: (session!.user as any)?.email,
+      actor: session!.user?.email ?? undefined,
       action: 'COURSE_UNPUBLISHED',
       resource: 'Course',
       resourceId: resolvedParams.id,

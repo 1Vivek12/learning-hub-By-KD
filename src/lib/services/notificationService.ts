@@ -22,11 +22,17 @@ export class NotificationService {
     return prisma.notification.create({ data });
   }
 
-  static async markAsRead(id: string) {
-    return prisma.notification.update({
-      where: { id },
+  static async markAsRead(id: string, userId: string) {
+    const result = await prisma.notification.updateMany({
+      where: { id, userId },
       data: { readAt: new Date() },
     });
+
+    if (result.count === 0) {
+      throw new Error("NOT_FOUND_OR_UNAUTHORIZED");
+    }
+
+    return { success: true };
   }
 
   static async markAllAsRead(userId: string) {

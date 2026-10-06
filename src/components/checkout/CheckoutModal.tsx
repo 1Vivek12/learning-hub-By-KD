@@ -1,9 +1,9 @@
-// @ts-nocheck
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { Course, Order } from '@/types';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { useAuth } from '@/services/authService';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { StorageService } from '@/services/storageService';
 import {
   X,
@@ -30,7 +30,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   onSuccess,
 }) => {
   const { t, l } = useLanguage();
-  const { user, enrollInCourse } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
+  const router = useRouter();
 
   const [couponCode, setCouponCode] = useState('PRO50');
   const [couponApplied, setCouponApplied] = useState(false);
@@ -101,7 +103,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         amount: orderData.amount,
         currency: orderData.currency,
         name: 'Learning Hub',
-        description: `Enrollment: ${course.titleEn}`,
+        description: `Enrollment: ${course.title.en}`,
         order_id: orderData.gatewayOrderId,
         handler: async function (response: any) {
           try {
@@ -157,8 +159,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const triggerSuccess = () => {
     setIsProcessing(false);
     
-    // Sync local auth context to reflect new enrollment
-    enrollInCourse(course.id);
+    // Refresh to get new enrollment data from server
+    router.refresh();
     
     try {
       confetti({

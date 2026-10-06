@@ -10,9 +10,9 @@ export async function GET(request: Request) {
     const language = searchParams.get('language');
     const minPrice = searchParams.get('minPrice');
     const maxPrice = searchParams.get('maxPrice');
-    const status = searchParams.get('status') || 'PUBLISHED';
-    
-    const where: any = { status };
+    // Security Fix: Public search API must strictly and exclusively return PUBLISHED courses
+    // Ignored client-provided status to prevent ?status=DRAFT leaks
+    const where: any = { status: 'PUBLISHED' };
     
     if (q) {
       where.OR = [

@@ -8,8 +8,8 @@ export async function GET(request: Request) {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
     // Admin/Instructor can see all, students should only see classes for enrolled courses
-    const role = (session!.user as any).role;
-    const userId = (session!.user as any).id;
+    const role = session!.user.role;
+    const userId = session!.user.id;
 
     if (role === 'STUDENT') {
       const enrollments = await prisma.enrollment.findMany({
@@ -39,8 +39,8 @@ export async function POST(request: Request) {
   try {
     const { session, errorResponse } = await getApiInstructor();
     if (errorResponse) return errorResponse;
-    const userId = (session!.user as any).id;
-    const role = (session!.user as any).role;
+    const userId = session!.user.id;
+    const role = session!.user.role;
     const body = await request.json();
     
     // Quick validation
@@ -53,7 +53,6 @@ export async function POST(request: Request) {
       titleEn: body.titleEn,
       descriptionEn: body.descriptionEn,
       courseId: body.courseId,
-      instructorId: body.instructorId || userId,
       scheduledStartTime: new Date(body.scheduledStartTime),
       durationMinutes: body.durationMinutes,
       maxParticipants: body.maxParticipants || 100

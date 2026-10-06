@@ -7,7 +7,7 @@ export async function POST(request: Request) {
   try {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
-    const userId = (session!.user as any).id;
+    const userId = session!.user.id;
     const body = await request.json();
     const { courseId } = body;
 
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     const certificate = await CertificateService.issueCertificate(userId, courseId);
 
     await AuditService.log({
-      actor: (session!.user as any).email,
+      actor: session!.user.email ?? undefined,
       action: "CERTIFICATE_ISSUED",
       resource: "Certificate",
       resourceId: certificate.id,
@@ -27,8 +27,19 @@ export async function POST(request: Request) {
 
     return NextResponse.json(certificate);
   } catch (error: any) {
-    
-    console.error("Certificate Issue Error:", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 400 });
+    const message = error.message || "";
+    if (message.includes("Not eligible") || message.includes("not completed") || message.includes("not all") || message.includes("not been")) {
+      return NextResponse.json({ error: message }, { status: 403 });
+    }
+    if (message.includes("already issued")) {
+      return NextResponse.json({ error: message }, { status: 409 });
+    }
+    if (message.includes("No enrollment") || message.includes("not found")) {
+      return NextResponse.json({ error: message }, { status: 404 });
+    }
+    if (message.includes("no longer active")) {
+      return NextResponse.json({ error: message }, { status: 403 });
+    }
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

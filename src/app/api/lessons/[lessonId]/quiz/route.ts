@@ -8,7 +8,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
   try {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
-    const userId = (session!.user as any).id;
+    const userId = session!.user.id;
     
     // 1. Verify lesson access
     await CourseAccessService.requireLessonAccess(userId, resolvedParams.lessonId);

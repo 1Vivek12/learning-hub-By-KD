@@ -25,9 +25,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Category name is required" }, { status: 400 });
     }
     
-    const category = await CategoryService.createCategory(body);
+    const safeData = {
+      name: body.name,
+      description: body.description,
+    };
+    
+    const category = await CategoryService.createCategory(safeData);
     await AuditService.log({
-      actor: (session!.user as any)?.email,
+      actor: session!.user?.email ?? undefined,
       action: 'CATEGORY_CREATED',
       resource: 'Category',
       resourceId: category.id,

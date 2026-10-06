@@ -3,9 +3,13 @@ import { prisma } from "@/lib/db/prisma";
 import bcrypt from "bcryptjs";
 import { AuditService } from "@/lib/services/auditService";
 import { EmailService } from "@/lib/services/emailService";
+import { RateLimiter } from "@/lib/security/rateLimiter";
 
 export async function POST(request: Request) {
   try {
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const ip = forwardedFor ? forwardedFor.split(",")[0].trim() : "127.0.0.1";
+
     const body = await request.json();
     const { name, email, password } = body;
 
@@ -13,11 +17,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
+    // IP Registration Rate Limits
+    // Burst: 3 per 15 minutes
+    const burstLimit = await RateLimiter.consume(`auth:register:burst:${ip}`, 3, 15 * 60 * 1000);
+    if (!burstLimit.success) {
+      return NextResponse.json({ error: "Too many registrations. Please try again later." }, { status: 429, headers: { 'Retry-After': '900' } });
+    }
+
+    // Sustained: 5 per hour
+    const sustainedLimit = await RateLimiter.consume(`auth:register:hourly:${ip}`, 5, 60 * 60 * 1000);
+    if (!sustainedLimit.success) {
+      return NextResponse.json({ error: "Too many registrations. Please try again later." }, { status: 429, headers: { 'Retry-After': '3600' } });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
     if (password.length < 6) {
       return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 });
     }
 
-    const existing = await prisma.user.findUnique({ where: { email } });
+    const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } });
     if (existing) {
       return NextResponse.json({ error: "Email already in use" }, { status: 400 });
     }
@@ -27,7 +46,7 @@ export async function POST(request: Request) {
     const user = await prisma.user.create({
       data: {
         name,
-        email,
+        email: normalizedEmail,
         passwordHash,
         role: "STUDENT", // Forced server-side
       },

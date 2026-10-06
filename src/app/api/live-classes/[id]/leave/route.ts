@@ -7,7 +7,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   try {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
-    const userId = (session!.user as any).id;
+    const userId = session!.user.id;
 
     const result = await LiveClassService.leaveClass(userId, resolvedParams.id);
     return NextResponse.json(result);

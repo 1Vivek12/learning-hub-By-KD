@@ -2,20 +2,17 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/i18n/LanguageContext';
 import { useTheme } from '@/theme/ThemeContext';
-import { useAuth } from '@/services/authService';
 import { useSession, signOut } from 'next-auth/react';
 import { Language } from '@/types';
 import {
   Search,
   Moon,
   Sun,
-  Globe,
+  Compass,
   Radio,
   Sparkles,
   User,
-  ShieldCheck,
   BookOpen,
-  Compass,
   Menu,
   X,
   Layers,
@@ -32,10 +29,10 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onNavigate, currentRoute }) => {
   const { language, setLanguage, t } = useLanguage();
   const { theme, toggleTheme, isDark } = useTheme();
-  const { user, isAdmin, loginAsStudent, loginAsAdmin } = useAuth();
   const { data: session } = useSession();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const user = session?.user;
 
   const navItems = [
     { label: t('nav.courses'), route: 'courses', href: '/courses', icon: BookOpen },
@@ -161,23 +158,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onNavigate, curren
                         </button>
                       ))}
                     </div>
-
-                    {/* Dev-only role switcher — not rendered in production builds */}
-                    {process.env.NODE_ENV === 'development' && (
-                      <div className="pt-2 mt-2 border-t border-slate-100 dark:border-white/10">
-                        <button
-                          onClick={() => {
-                            if (isAdmin) loginAsStudent();
-                            else loginAsAdmin();
-                            setIsSettingsOpen(false);
-                          }}
-                          className="w-full text-left px-3 py-2 rounded-lg text-xs flex items-center gap-2 text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-500/10 focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
-                        >
-                          <User className="w-3.5 h-3.5" />
-                          <span>[DEV] Switch to {isAdmin ? 'Student' : 'Admin'} View</span>
-                        </button>
-                      </div>
-                    )}
                   </div>
                 </div>
               )}

@@ -20,7 +20,7 @@ export async function getApiRole(allowedRoles: string[]) {
     return { session: null, errorResponse };
   }
   
-  const userRole = (session.user as any)?.role;
+  const userRole = session.user?.role;
   
   if (!allowedRoles.includes(userRole)) {
     return { session: null, errorResponse: NextResponse.json({ error: "Forbidden" }, { status: 403 }) };
@@ -50,7 +50,7 @@ export async function requireAuth() {
 export async function requireRole(allowedRoles: string[]) {
   const session = await requireAuth();
   
-  const userRole = (session.user as any)?.role;
+  const userRole = session.user?.role;
   
   if (!allowedRoles.includes(userRole)) {
     redirect("/unauthorized");

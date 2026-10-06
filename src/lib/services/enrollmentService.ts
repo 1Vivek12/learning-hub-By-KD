@@ -4,7 +4,11 @@ import { EnrollmentStatus } from '@prisma/client';
 export class EnrollmentService {
   static async getEnrollmentsByUser(userId: string) {
     return prisma.enrollment.findMany({
-      where: { userId, status: EnrollmentStatus.ACTIVE },
+      where: { 
+        userId, 
+        status: EnrollmentStatus.ACTIVE,
+        course: { status: 'PUBLISHED' } // Security Fix: Do not expose draft courses in student dashboard
+      },
       include: {
         course: {
           include: {

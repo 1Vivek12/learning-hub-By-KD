@@ -10,7 +10,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
   try {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
-    const userId = (session!.user as any).id;
+    const userId = session!.user.id;
     const lessonId = resolvedParams.lessonId;
 
     // 1. Check access
@@ -36,7 +36,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ less
 
     // 4. Log access
     await AuditService.log({
-      actor: (session!.user as any).email,
+      actor: session!.user.email ?? undefined,
       action: "VIDEO_ACCESS_GRANTED",
       resource: "Lesson",
       resourceId: lessonId,

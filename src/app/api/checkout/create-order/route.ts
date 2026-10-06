@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   try {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
-    const userId = (session!.user as any).id;
+    const userId = session!.user.id;
     const body = await request.json();
     const { courseId, couponCode } = body;
 
@@ -18,12 +18,8 @@ export async function POST(request: Request) {
     }
 
     const course = await prisma.course.findUnique({ where: { id: courseId } });
-    if (!course) {
+    if (!course || course.status !== 'PUBLISHED') {
       return NextResponse.json({ error: "Course not found" }, { status: 404 });
-    }
-
-    if (course.status !== 'PUBLISHED') {
-      return NextResponse.json({ error: "Course is not available for purchase" }, { status: 400 });
     }
 
     const existingEnrollment = await prisma.enrollment.findUnique({
@@ -60,7 +56,7 @@ export async function POST(request: Request) {
     });
 
     await AuditService.log({
-      actor: (session!.user as any).email,
+      actor: session!.user.email ?? undefined,
       action: "ORDER_CREATED",
       resource: "Order",
       resourceId: order.id,

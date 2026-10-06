@@ -7,14 +7,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   try {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
+    const userId = session!.user.id;
     
-    // In a real application, ensure the notification belongs to the user
-    // We assume markAsRead is safe or checks ownership within the service/db layer
-    await NotificationService.markAsRead(resolvedParams.id);
+    await NotificationService.markAsRead(resolvedParams.id, userId);
     
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    
+    if (error.message === 'NOT_FOUND_OR_UNAUTHORIZED') {
+      return NextResponse.json({ error: "Notification not found" }, { status: 404 });
+    }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

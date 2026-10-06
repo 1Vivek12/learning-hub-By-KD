@@ -25,7 +25,7 @@ export async function proxy(request: NextRequest) {
     secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   });
 
-  const role = (token as any)?.role as string | undefined;
+  const role = token?.role as string | undefined;
   const isAuthenticated = !!token;
   const isAdminRole = role === 'ADMIN' || role === 'SUPER_ADMIN';
 

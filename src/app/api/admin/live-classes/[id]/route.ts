@@ -9,11 +9,22 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     if (errorResponse) return errorResponse;
     const body = await request.json();
     
-    // For start/end we use dedicated actions, so here we remove status just in case.
-    if (body.status) delete body.status;
-    if (body.scheduledStartTime) body.scheduledStartTime = new Date(body.scheduledStartTime);
+    const safeData: any = {};
+    const allowedFields = [
+      'titleEn', 'descriptionEn', 'courseId', 'instructorId', 
+      'maxParticipants', 'recordingAvailable', 'durationMinutes', 'joinUrl'
+    ];
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        safeData[field] = body[field];
+      }
+    }
     
-    const updated = await LiveClassService.updateClass(session!.user.id, (session!.user as any).role, resolvedParams.id, body);
+    if (body.scheduledStartTime) {
+      safeData.scheduledStartTime = new Date(body.scheduledStartTime);
+    }
+    
+    const updated = await LiveClassService.updateClass(session!.user.id, session!.user.role, resolvedParams.id, safeData);
     return NextResponse.json(updated);
   } catch (error: any) {
     
@@ -26,7 +37,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   try {
     const { session, errorResponse } = await getApiAdmin();
     if (errorResponse) return errorResponse;
-    await LiveClassService.deleteClass(session!.user.id, (session!.user as any).role, resolvedParams.id);
+    await LiveClassService.deleteClass(session!.user.id, session!.user.role, resolvedParams.id);
     return new NextResponse(null, { status: 204 });
   } catch (error: any) {
     

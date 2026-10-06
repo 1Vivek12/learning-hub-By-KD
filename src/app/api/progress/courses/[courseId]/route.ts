@@ -8,10 +8,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ cour
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
 
-    const progress = await ProgressService.getCourseProgress((session!.user as any).id, resolvedParams.courseId);
+    const progress = await ProgressService.getCourseProgress(session!.user.id, resolvedParams.courseId);
     return NextResponse.json(progress);
   } catch (error: any) {
-    console.error("Error fetching course progress:", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

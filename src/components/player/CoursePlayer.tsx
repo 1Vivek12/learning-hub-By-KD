@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Course, Lesson } from '@/types';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { useAuth } from '@/services/authService';
+import { useSession } from 'next-auth/react';
+import { StorageService } from '@/services/storageService';
 import {
   Play,
   Pause,
@@ -37,7 +38,17 @@ export const CoursePlayer: React.FC<CoursePlayerProps> = ({
   onClaimCertificate,
 }) => {
   const { t, l } = useLanguage();
-  const { isLessonCompleted, toggleLesson } = useAuth();
+  const [completedLessons, setCompletedLessons] = useState<string[]>([]);
+
+  useEffect(() => {
+    setCompletedLessons(StorageService.getCurrentUser()?.completedLessonIds || []);
+  }, []);
+
+  const isLessonCompleted = (id: string) => completedLessons.includes(id);
+  const toggleLesson = (courseId: string, lessonId: string) => {
+    StorageService.toggleLessonComplete(courseId, lessonId);
+    setCompletedLessons(StorageService.getCurrentUser()?.completedLessonIds || []);
+  };
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Flatten lessons for linear navigation

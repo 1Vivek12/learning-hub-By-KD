@@ -30,10 +30,10 @@ export class ProductionStorageProvider implements CertificateStorageProvider {
 
 export class MockStorageProvider implements CertificateStorageProvider {
   async storePdf(certificateNumber: string, pdfBuffer: Buffer): Promise<string> {
-    return `https://mock-storage.learninghub.io/certs/${certificateNumber}.pdf`;
+    return `https://mock-storage.learning-hub-by-kd.vercel.app/certs/${certificateNumber}.pdf`;
   }
   async getPdfUrl(certificateNumber: string): Promise<string> {
-    return `https://mock-storage.learninghub.io/certs/${certificateNumber}.pdf`;
+    return `https://mock-storage.learning-hub-by-kd.vercel.app/certs/${certificateNumber}.pdf`;
   }
 }
 

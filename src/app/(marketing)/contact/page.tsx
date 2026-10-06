@@ -17,7 +17,7 @@ export default function ContactPage() {
         
         <div className="mt-8 p-6 bg-slate-100 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/10">
           <h3 className="text-lg font-bold mb-4">Support & Inquiries</h3>
-          <p className="mb-2"><strong>Email:</strong> support@learninghub.io</p>
+          <p className="mb-2"><strong>Email:</strong> support@learning-hub-by-kd.vercel.app</p>
           <p className="text-xs text-slate-500 mt-4">
             <em>[Company Address / Registration placeholder - To be configured via settings]</em>
           </p>

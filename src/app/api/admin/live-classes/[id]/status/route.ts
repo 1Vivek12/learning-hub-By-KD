@@ -11,9 +11,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     
     let updated;
     if (body.action === 'start') {
-      updated = await LiveClassService.startClass(session!.user.id, (session!.user as any).role, resolvedParams.id);
+      updated = await LiveClassService.startClass(session!.user.id, session!.user.role, resolvedParams.id);
     } else if (body.action === 'end') {
-      updated = await LiveClassService.endClass(session!.user.id, (session!.user as any).role, resolvedParams.id);
+      updated = await LiveClassService.endClass(session!.user.id, session!.user.role, resolvedParams.id);
     } else {
       return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }

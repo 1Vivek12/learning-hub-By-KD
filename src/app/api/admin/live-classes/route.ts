@@ -29,12 +29,19 @@ export async function POST(request: Request) {
     // Auto-generate a secure roomId
     const roomId = `room-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 7)}`;
     
-    const newClass = await LiveClassService.createClass(session!.user.id, (session!.user as any).role, {
-      ...body,
+    const safeData = {
+      titleEn: body.titleEn,
+      descriptionEn: body.descriptionEn,
+      courseId: body.courseId,
+      instructorId: body.instructorId,
+      maxParticipants: typeof body.maxParticipants === 'number' ? body.maxParticipants : 100,
+      recordingAvailable: typeof body.recordingAvailable === 'boolean' ? body.recordingAvailable : false,
       roomId,
       scheduledStartTime: new Date(body.scheduledStartTime),
       joinUrl: `/live/${roomId}`
-    });
+    };
+
+    const newClass = await LiveClassService.createClass(session!.user.id, session!.user.role, safeData);
     
     return NextResponse.json(newClass, { status: 201 });
   } catch (error: any) {

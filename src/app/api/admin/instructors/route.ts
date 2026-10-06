@@ -26,9 +26,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "name, titleEn, and bioEn are required" }, { status: 400 });
     }
     
-    const instructor = await prisma.instructor.create({ data: body });
+    const safeData = {
+      name: body.name,
+      titleEn: body.titleEn,
+      titleHi: body.titleHi,
+      titleHinglish: body.titleHinglish,
+      bioEn: body.bioEn,
+      bioHi: body.bioHi,
+      bioHinglish: body.bioHinglish,
+      avatar: body.avatar,
+      company: body.company,
+      socials: body.socials,
+      userId: body.userId,
+    };
+    
+    const instructor = await prisma.instructor.create({ data: safeData });
     await AuditService.log({
-      actor: (session!.user as any)?.email,
+      actor: session!.user?.email ?? undefined,
       action: 'INSTRUCTOR_CREATED',
       resource: 'Instructor',
       resourceId: instructor.id,

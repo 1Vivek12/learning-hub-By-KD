@@ -1,6 +1,0 @@
-{
-  "name": "Learning Hub - Cinematic 3D EdTech Platform",
-  "description": "Premium, production-ready cinematic 3D edtech platform with real WebRTC live classes, full CMS admin panel, multi-language support, and dual theme.",
-  "requestFramePermissions": ["camera", "microphone"],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}

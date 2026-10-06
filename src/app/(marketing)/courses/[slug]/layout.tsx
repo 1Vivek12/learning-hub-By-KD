@@ -13,7 +13,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     include: { instructor: true }
   });
 
-  if (!course) {
+  // Security Fix: Do not leak SEO metadata for draft courses
+  if (!course || course.status !== 'PUBLISHED') {
     return { title: 'Course Not Found | Learning Hub' };
   }
 
@@ -48,7 +49,8 @@ export default async function CourseLayout({ children, params }: Props) {
     include: { instructor: true }
   });
 
-  if (!course) return <>{children}</>;
+  // Security Fix: Do not leak JSON-LD for draft courses
+  if (!course || course.status !== 'PUBLISHED') return <>{children}</>;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -58,7 +60,7 @@ export default async function CourseLayout({ children, params }: Props) {
     provider: {
       '@type': 'Organization',
       name: 'Learning Hub',
-      sameAs: process.env.NEXT_PUBLIC_APP_URL || 'https://learninghub.io'
+      sameAs: process.env.NEXT_PUBLIC_APP_URL || 'https://learning-hub-by-kd.vercel.app'
     },
     offers: {
       '@type': 'Offer',

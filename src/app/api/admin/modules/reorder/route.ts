@@ -17,8 +17,8 @@ export async function PATCH(request: Request) {
     
     // Update each module's order
     const updates = orderedIds.map((id: string, index: number) =>
-      prisma.courseModule.update({
-        where: { id },
+      prisma.courseModule.updateMany({
+        where: { id, courseId },
         data: { order: index + 1 },
       })
     );
@@ -26,7 +26,7 @@ export async function PATCH(request: Request) {
     await prisma.$transaction(updates);
     
     await AuditService.log({
-      actor: (session!.user as any)?.email,
+      actor: session!.user?.email ?? undefined,
       action: 'MODULES_REORDERED',
       resource: 'Course',
       resourceId: courseId,

@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
-    const userId = (session!.user as any).id;
+    const userId = session!.user.id;
     
     // We use SiteSetting model to store user preferences to avoid schema changes
     // Key format: user_prefs_${userId}
@@ -33,7 +33,7 @@ export async function PUT(request: Request) {
   try {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
-    const userId = (session!.user as any).id;
+    const userId = session!.user.id;
     const body = await request.json();
     
     // Ensure security cannot be turned off

@@ -8,7 +8,7 @@ export async function POST(request: Request) {
   try {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
-    const userId = (session!.user as any).id;
+    const userId = session!.user.id;
     const body = await request.json();
     
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = body;
@@ -84,13 +84,13 @@ export async function POST(request: Request) {
 
     if (!result.alreadyPaid) {
       await AuditService.log({
-        actor: (session!.user as any).email,
+        actor: session!.user.email ?? undefined,
         action: "PAYMENT_VERIFIED",
         resource: "Order",
         resourceId: orderId,
       });
       await AuditService.log({
-        actor: (session!.user as any).email,
+        actor: session!.user.email ?? undefined,
         action: "ENROLLMENT_CREATED",
         resource: "Enrollment",
         resourceId: result.enrollment?.id,

@@ -79,6 +79,8 @@ model User {
   quizAttempts         QuizAttempt[]
   lessonNotes          LessonNote[]
   lessonBookmarks      LessonBookmark[]
+  
+  instructorProfile    Instructor?
 }
 
 model Permission {
@@ -107,6 +109,11 @@ model Instructor {
   socials       Json?
   
   courses       Course[]
+  liveClasses   LiveClass[]
+  
+  userId        String?   @unique
+  user          User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -161,9 +168,14 @@ model Course {
   orders          Order[]
   liveClasses     LiveClass[]
   lessonProgress  LessonProgress[]
+  certificates    Certificate[]
   
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
+
+  @@index([instructorId])
+  @@index([categoryId])
+  @@index([status])
 }
 
 model CourseModule {
@@ -178,6 +190,8 @@ model CourseModule {
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([courseId, order])
 }
 
 model Lesson {
@@ -208,6 +222,9 @@ model Lesson {
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  @@index([moduleId, order])
+  @@index([status])
 }
 
 model LessonResource {
@@ -217,6 +234,8 @@ model LessonResource {
   lessonId    String
   lesson      Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
+
+  @@index([lessonId])
 }
 
 model Enrollment {
@@ -228,8 +247,12 @@ model Enrollment {
   status      EnrollmentStatus @default(ACTIVE)
   enrolledAt  DateTime @default(now())
   completedAt DateTime?
+  certificate Certificate?
   
   @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
 }
 
 model LessonProgress {
@@ -248,6 +271,8 @@ model LessonProgress {
   updatedAt   DateTime @updatedAt
   
   @@unique([userId, lessonId])
+  @@index([userId])
+  @@index([courseId])
 }
 
 model Order {
@@ -262,10 +287,13 @@ model Order {
   coupon          Coupon?       @relation(fields: [couponId], references: [id])
   paymentStatus   PaymentStatus @default(PENDING)
   paymentProvider String?
-  transactionRef  String?
+  transactionRef  String?       @unique
   payments        Payment[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([paymentStatus])
 }
 
 model Payment {
@@ -275,9 +303,11 @@ model Payment {
   amount          Float
   status          PaymentStatus @default(PENDING)
   provider        String
-  providerRef     String?
+  providerRef     String?       @unique
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+
+  @@index([orderId])
 }
 
 model Coupon {
@@ -297,8 +327,10 @@ model Certificate {
   userId            String
   user              User     @relation(fields: [userId], references: [id])
   courseId          String
+  course            Course   @relation(fields: [courseId], references: [id], onDelete: Restrict)
   courseTitle       String
   enrollmentId      String   @unique
+  enrollment        Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Restrict)
   studentName       String
   instructorName    String
   qrVerificationUrl String
@@ -312,6 +344,8 @@ model Certificate {
   updatedAt         DateTime @updatedAt
   
   @@unique([userId, courseId])
+  @@index([certificateNumber])
+  @@index([verificationToken])
 }
 
 model LiveClass {
@@ -321,6 +355,7 @@ model LiveClass {
   descriptionEn       String?
   
   instructorId        String
+  instructor          Instructor @relation(fields: [instructorId], references: [id], onDelete: Restrict)
   courseId            String
   course              Course          @relation(fields: [courseId], references: [id])
   
@@ -336,6 +371,11 @@ model LiveClass {
   
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
+
+  @@index([courseId])
+  @@index([instructorId])
+  @@index([status])
+  @@index([scheduledStartTime])
 }
 
 model LiveClassParticipant {
@@ -347,6 +387,8 @@ model LiveClassParticipant {
   joinedAt    DateTime @default(now())
   
   @@unique([userId, liveClassId])
+  @@index([liveClassId])
+  @@index([userId])
 }
 
 model AuditLog {
@@ -357,6 +399,10 @@ model AuditLog {
   resourceId  String?
   details     Json?
   createdAt   DateTime @default(now())
+
+  @@index([actor])
+  @@index([resource, resourceId])
+  @@index([createdAt])
 }
 
 model SiteSetting {
@@ -375,6 +421,9 @@ model Notification {
   type        String   // e.g. 'SYSTEM', 'COURSE_UPDATE', 'PAYMENT'
   readAt      DateTime?
   createdAt   DateTime @default(now())
+
+  @@index([userId, readAt])
+  @@index([userId, createdAt])
 }
 
 model Quiz {
@@ -427,6 +476,9 @@ model QuizAttempt {
   
   startedAt   DateTime @default(now())
   completedAt DateTime?
+
+  @@index([userId])
+  @@index([quizId])
 }
 
 model QuizAnswer {
@@ -471,5 +523,16 @@ model VideoAsset {
   duration    Float?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model RateLimit {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  points    Int      @default(0)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([expiresAt])
 }
 

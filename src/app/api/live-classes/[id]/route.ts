@@ -26,8 +26,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   try {
     const { session, errorResponse } = await getApiInstructor();
     if (errorResponse) return errorResponse;
-    const userId = (session!.user as any).id;
-    const role = (session!.user as any).role;
+    const userId = session!.user.id;
+    const role = session!.user.role;
     const body = await request.json();
 
     const liveClass = await LiveClassService.updateClass(userId, role, resolvedParams.id, body);
@@ -44,8 +44,8 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
   try {
     const { session, errorResponse } = await getApiInstructor();
     if (errorResponse) return errorResponse;
-    const userId = (session!.user as any).id;
-    const role = (session!.user as any).role;
+    const userId = session!.user.id;
+    const role = session!.user.role;
 
     await LiveClassService.deleteClass(userId, role, resolvedParams.id);
     return NextResponse.json({ success: true });

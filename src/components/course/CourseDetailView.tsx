@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Course, Instructor } from '@/types';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { useAuth } from '@/services/authService';
+import { useSession } from 'next-auth/react';
 import {
   Star,
   Clock,
@@ -35,12 +35,25 @@ export const CourseDetailView: React.FC<CourseDetailViewProps> = ({
   onEnroll,
 }) => {
   const { t, l } = useLanguage();
-  const { isEnrolled } = useAuth();
-  const enrolled = isEnrolled(course.id);
+  const { data: session } = useSession();
+  const [enrolled, setEnrolled] = useState(false);
   const [expandedModules, setExpandedModules] = useState<Record<string, boolean>>({
     [course.modules[0]?.id || '']: true,
   });
   const [activePreviewLessonVideo, setActivePreviewLessonVideo] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetch('/api/enrollments')
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            setEnrolled(data.some((e: any) => e.courseId === course.id));
+          }
+        })
+        .catch(console.error);
+    }
+  }, [session, course.id]);
 
   const toggleModule = (modId: string) => {
     setExpandedModules((prev) => ({ ...prev, [modId]: !prev[modId] }));

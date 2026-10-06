@@ -10,7 +10,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ les
   try {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
-    const userId = (session!.user as any).id;
+    const userId = session!.user.id;
     const body = await request.json();
     const { answers } = body; // { questionId: optionId }
     
@@ -70,7 +70,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ les
     }
 
     await AuditService.log({
-      actor: (session!.user as any).email,
+      actor: session!.user.email ?? undefined,
       action: passed ? "QUIZ_PASSED" : "QUIZ_FAILED",
       resource: "QuizAttempt",
       resourceId: attempt.id,

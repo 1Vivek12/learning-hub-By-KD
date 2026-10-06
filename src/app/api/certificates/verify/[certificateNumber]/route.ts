@@ -27,7 +27,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ cert
       ...cert
     });
   } catch (error) {
-    console.error("Certificate Verification Error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

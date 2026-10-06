@@ -25,10 +25,27 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { session, errorResponse } = await getApiAdmin();
     if (errorResponse) return errorResponse;
     const body = await request.json();
-    const course = await CourseService.updateCourse(resolvedParams.id, body);
+    const safeData: any = {};
+    const allowedFields = [
+      'titleEn', 'titleHi', 'titleHinglish',
+      'descShortEn', 'descShortHi', 'descShortHinglish',
+      'descLongEn', 'descLongHi', 'descLongHinglish',
+      'slug', 'level', 'language', 'durationHours',
+      'price', 'originalPrice', 'discountPercent',
+      'thumbnail', 'heroBanner', 'trailerUrl',
+      'skills', 'learningOutcomes', 'requirements',
+      'isFeatured', 'isPopular', 'categoryId', 'instructorId'
+    ];
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        safeData[field] = body[field];
+      }
+    }
+
+    const course = await CourseService.updateCourse(resolvedParams.id, safeData);
 
     await AuditService.log({
-      actor: (session!.user as any)?.email,
+      actor: session!.user?.email ?? undefined,
       action: 'COURSE_UPDATED',
       resource: 'Course',
       resourceId: resolvedParams.id,
@@ -49,7 +66,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     await CourseService.deleteCourse(resolvedParams.id);
 
     await AuditService.log({
-      actor: (session!.user as any)?.email,
+      actor: session!.user?.email ?? undefined,
       action: 'COURSE_DELETED',
       resource: 'Course',
       resourceId: resolvedParams.id,

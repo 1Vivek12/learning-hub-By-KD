@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ProgressService } from "@/lib/services/progressService";
+import { CourseAccessService } from "@/lib/services/courseAccessService";
 import { getApiSession } from "@/lib/auth/utils";
 
 export async function POST(request: Request) {
@@ -14,16 +15,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "lessonId is required" }, { status: 400 });
     }
 
-    const progress = await ProgressService.markLessonComplete((session!.user as any).id, lessonId);
+    // Security Fix: Verify lesson access before allowing completion
+    await CourseAccessService.requireLessonAccess(session!.user.id, lessonId);
+
+    const progress = await ProgressService.markLessonComplete(session!.user.id, lessonId);
     return NextResponse.json(progress);
   } catch (error: any) {
-    if (error.message === "UNAUTHORIZED_COURSE_ACCESS") {
+    if (error.message === "UNAUTHORIZED_COURSE_ACCESS" || error.message === "UNAUTHORIZED_LESSON_ACCESS") {
       return NextResponse.json({ error: "User is not enrolled in this course" }, { status: 403 });
+    }
+    if (error.message === "QUIZ_NOT_PASSED") {
+      return NextResponse.json({ error: "Quiz must be passed before completing this lesson" }, { status: 403 });
     }
     if (error.message === "ENROLLMENT_NOT_FOUND") {
       return NextResponse.json({ error: "Enrollment not found" }, { status: 404 });
     }
-    console.error("Error completing lesson progress:", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

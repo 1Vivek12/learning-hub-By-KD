@@ -44,16 +44,30 @@ export async function POST(request: Request) {
       _max: { order: true },
     });
     
+    const safeData = {
+      titleEn: body.titleEn,
+      titleHi: body.titleHi,
+      titleHinglish: body.titleHinglish,
+      slug: body.slug,
+      descriptionEn: body.descriptionEn,
+      descriptionHi: body.descriptionHi,
+      descriptionHinglish: body.descriptionHinglish,
+      type: body.type,
+      videoUrl: body.videoUrl,
+      isFreePreview: typeof body.isFreePreview === 'boolean' ? body.isFreePreview : false,
+      moduleId: body.moduleId,
+    };
+
     const lesson = await prisma.lesson.create({
       data: {
-        ...body,
-        order: body.order ?? (maxOrder._max.order || 0) + 1,
-        durationMinutes: body.durationMinutes ?? 0,
+        ...safeData,
+        order: typeof body.order === 'number' ? body.order : (maxOrder._max.order || 0) + 1,
+        durationMinutes: typeof body.durationMinutes === 'number' ? body.durationMinutes : 0,
       },
     });
     
     await AuditService.log({
-      actor: (session!.user as any)?.email,
+      actor: session!.user?.email ?? undefined,
       action: 'LESSON_CREATED',
       resource: 'Lesson',
       resourceId: lesson.id,

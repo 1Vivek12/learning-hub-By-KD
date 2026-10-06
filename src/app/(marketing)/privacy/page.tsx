@@ -24,7 +24,7 @@ export default function PrivacyPolicyPage() {
         <p>Your privacy is important to us. We implement security measures designed to protect your information, including standard encryption for sensitive credentials.</p>
         
         <h2>4. Contact Us</h2>
-        <p>If you have any questions about this Privacy Policy, please contact us at support@learninghub.io.</p>
+        <p>If you have any questions about this Privacy Policy, please contact us at support@learning-hub-by-kd.vercel.app.</p>
         
         <p className="text-xs text-slate-500 mt-8 border-t border-slate-200 dark:border-white/10 pt-4">
           <em>Note: Legal details and jurisdiction information should be configured in your business settings.</em>

@@ -1,10 +1,11 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { Award, Search, Loader2, AlertCircle, XCircle } from 'lucide-react';
-import { useAuth } from '@/services/authService';
+import { useSession } from 'next-auth/react';
 
 export const AdminCertificates: React.FC = () => {
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   const [certificates, setCertificates] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);

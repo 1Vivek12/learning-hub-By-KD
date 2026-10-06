@@ -28,9 +28,20 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { session, errorResponse } = await getApiAdmin();
     if (errorResponse) return errorResponse;
     const body = await request.json();
-    const instructor = await prisma.instructor.update({ where: { id: resolvedParams.id }, data: body });
+    const safeData: any = {};
+    const allowedFields = [
+      'name', 'titleEn', 'titleHi', 'titleHinglish',
+      'bioEn', 'bioHi', 'bioHinglish', 'avatar',
+      'company', 'socials', 'userId'
+    ];
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        safeData[field] = body[field];
+      }
+    }
+    const instructor = await prisma.instructor.update({ where: { id: resolvedParams.id }, data: safeData });
     await AuditService.log({
-      actor: (session!.user as any)?.email,
+      actor: session!.user?.email ?? undefined,
       action: 'INSTRUCTOR_UPDATED',
       resource: 'Instructor',
       resourceId: resolvedParams.id,
@@ -49,7 +60,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     if (errorResponse) return errorResponse;
     await prisma.instructor.delete({ where: { id: resolvedParams.id } });
     await AuditService.log({
-      actor: (session!.user as any)?.email,
+      actor: session!.user?.email ?? undefined,
       action: 'INSTRUCTOR_DELETED',
       resource: 'Instructor',
       resourceId: resolvedParams.id,

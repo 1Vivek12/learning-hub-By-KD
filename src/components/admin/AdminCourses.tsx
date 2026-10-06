@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { useAuth } from '@/services/authService';
+import { useSession } from 'next-auth/react';
 import {
   Plus,
   Edit2,
@@ -72,7 +72,8 @@ interface DBCourse {
 
 export const AdminCourses: React.FC = () => {
   const { l } = useLanguage();
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
 
   const [courses, setCourses] = useState<DBCourse[]>([]);
   const [loading, setLoading] = useState(true);

@@ -25,10 +25,39 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "titleEn and slug are required" }, { status: 400 });
     }
 
-    const course = await CourseService.createCourse(body);
+    const safeData = {
+      titleEn: body.titleEn,
+      titleHi: body.titleHi,
+      titleHinglish: body.titleHinglish,
+      descShortEn: body.descShortEn,
+      descShortHi: body.descShortHi,
+      descShortHinglish: body.descShortHinglish,
+      descLongEn: body.descLongEn,
+      descLongHi: body.descLongHi,
+      descLongHinglish: body.descLongHinglish,
+      slug: body.slug,
+      level: body.level,
+      language: body.language,
+      durationHours: typeof body.durationHours === 'number' ? body.durationHours : 0,
+      price: typeof body.price === 'number' ? body.price : 0,
+      originalPrice: typeof body.originalPrice === 'number' ? body.originalPrice : null,
+      discountPercent: typeof body.discountPercent === 'number' ? body.discountPercent : null,
+      thumbnail: body.thumbnail,
+      heroBanner: body.heroBanner,
+      trailerUrl: body.trailerUrl,
+      skills: Array.isArray(body.skills) ? body.skills : [],
+      learningOutcomes: body.learningOutcomes,
+      requirements: body.requirements,
+      isFeatured: typeof body.isFeatured === 'boolean' ? body.isFeatured : false,
+      isPopular: typeof body.isPopular === 'boolean' ? body.isPopular : false,
+      categoryId: body.categoryId,
+      instructorId: body.instructorId,
+    };
+
+    const course = await CourseService.createCourse(safeData);
 
     await AuditService.log({
-      actor: (session!.user as any)?.email,
+      actor: session!.user?.email ?? undefined,
       action: 'COURSE_CREATED',
       resource: 'Course',
       resourceId: course.id,

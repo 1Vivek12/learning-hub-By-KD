@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { HomepageSectionConfig } from '@/types';
 import { StorageService } from '@/services/storageService';
-import { useAuth } from '@/services/authService';
+import { useSession } from 'next-auth/react';
 import {
   ArrowUp,
   ArrowDown,
@@ -18,7 +18,8 @@ import {
 } from 'lucide-react';
 
 export const AdminHomepageCMS: React.FC = () => {
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   const [sections, setSections] = useState<HomepageSectionConfig[]>(() =>
     StorageService.getHomepageSections()
   );

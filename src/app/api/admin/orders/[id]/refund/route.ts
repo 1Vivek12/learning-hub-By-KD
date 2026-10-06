@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getApiAdmin } from "@/lib/auth/utils";
 import { prisma } from "@/lib/db/prisma";
 import { AuditService } from "@/lib/services/auditService";
+import Razorpay from "razorpay";
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
@@ -10,59 +11,92 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     if (errorResponse) return errorResponse;
     const orderId = resolvedParams.id;
     
-    // In production, we'd use a payment gateway SDK to initiate refund
-    // const rzp = new window.Razorpay({...})
-    // await rzp.refunds.create({ payment_id: payment.providerRef })
+    // 1. Validate Order State
+    const order = await prisma.order.findUnique({
+      where: { id: orderId },
+      include: { payments: true }
+    });
     
-    // For this architecture foundation, we update the DB state
-    const result = await prisma.$transaction(async (tx) => {
-      const order = await tx.order.findUnique({
-        where: { id: orderId },
-        include: { payments: true }
+    if (!order) {
+      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+    }
+    if (order.paymentStatus === 'REFUNDED') {
+      return NextResponse.json({ error: "Order is already refunded" }, { status: 409 });
+    }
+    if (order.paymentStatus !== 'PAID') {
+      return NextResponse.json({ error: "Order is not paid" }, { status: 400 });
+    }
+
+    // 2. Find successful payment
+    const payment = order.payments.find(p => p.status === 'PAID' && p.provider === 'Razorpay' && p.providerRef);
+    
+    if (!payment || !payment.providerRef) {
+       return NextResponse.json({ error: "No valid Razorpay payment found for this order" }, { status: 400 });
+    }
+
+    // 3. Call Razorpay Refund API
+    if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+       // Cannot refund without Razorpay credentials
+       console.error("Missing Razorpay credentials for refund");
+       return NextResponse.json({ error: "Gateway Configuration Error" }, { status: 500 });
+    }
+
+    const razorpay = new Razorpay({
+      key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+
+    try {
+      await razorpay.payments.refund(payment.providerRef, {
+        amount: Math.round(payment.amount * 100), // Razorpay expects paise/cents
+        notes: { reason: "Admin requested refund" }
       });
+    } catch (rzpError: any) {
+      const errorMsg = rzpError.description || rzpError.message || "";
+      // If Razorpay says it's already fully refunded, we can safely proceed to reconcile our local DB
+      const isAlreadyRefunded = errorMsg.toLowerCase().includes("fully refunded") || errorMsg.toLowerCase().includes("already refunded");
       
-      if (!order) {
-        throw new Error("ORDER_NOT_FOUND");
+      if (!isAlreadyRefunded) {
+        console.error("Razorpay Refund Error:", errorMsg);
+        return NextResponse.json({ error: "Gateway refund failed: " + errorMsg }, { status: 502 });
       }
-      if (order.paymentStatus === 'REFUNDED') {
-        throw new Error("ORDER_ALREADY_REFUNDED");
-      }
-      if (order.paymentStatus !== 'PAID') {
-        throw new Error("ORDER_NOT_PAID");
-      }
-      
+    }
+
+    // 4. Update Database State (Only after gateway success or if gateway confirms it's already refunded)
+    const result = await prisma.$transaction(async (tx) => {
+      // Mark order as refunded
       const updatedOrder = await tx.order.update({
         where: { id: orderId },
         data: { paymentStatus: 'REFUNDED' }
       });
       
-      // Attempt to revoke enrollment
-      await tx.enrollment.deleteMany({
-        where: { userId: order.userId, courseId: order.courseId }
+      // Mark payment as refunded
+      await tx.payment.update({
+        where: { id: payment.id },
+        data: { status: 'REFUNDED' }
+      });
+      
+      // Suspend enrollment (do not delete to preserve progress history)
+      await tx.enrollment.updateMany({
+        where: { userId: order.userId, courseId: order.courseId, status: { in: ['ACTIVE', 'COMPLETED'] } },
+        data: { status: 'CANCELLED' } // 'CANCELLED' revokes access safely
       });
       
       return updatedOrder;
     });
 
+    // 5. Audit Logging
     await AuditService.log({
-      actor: (session!.user as any).email,
+      actor: session!.user.email ?? undefined,
       action: "REFUND_COMPLETED",
       resource: "Order",
       resourceId: orderId,
+      details: { paymentId: payment.id, providerRef: payment.providerRef }
     });
 
     return NextResponse.json({ success: true, order: result });
   } catch (error: any) {
-    
-    if (error.message === "ORDER_ALREADY_REFUNDED") {
-      return NextResponse.json({ error: "Order is already refunded" }, { status: 400 });
-    }
-    if (error.message === "ORDER_NOT_PAID") {
-      return NextResponse.json({ error: "Order is not paid" }, { status: 400 });
-    }
-    if (error.message === "ORDER_NOT_FOUND") {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
-    }
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    console.error("Refund processing error:", error.message);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

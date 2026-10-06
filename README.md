@@ -1,20 +1,32 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Learning Hub by KD
 
-# Run and deploy your AI Studio app
+A comprehensive modern e-learning platform built with a robust technology stack.
 
-This contains everything you need to run your app locally.
+## Technology Stack
 
-View your app in AI Studio: https://ai.studio/apps/512e2a93-39d6-4d90-8b74-95c7135c64b2
+- **Framework:** Next.js (App Router)
+- **Language:** TypeScript
+- **Database:** PostgreSQL (via Supabase)
+- **ORM:** Prisma
+- **Authentication:** NextAuth
+- **Live Classes:** LiveKit
+- **Payments:** Razorpay
+- **Email Delivery:** Nodemailer
+- **Testing:** Vitest
 
-## Run Locally
+## Getting Started
 
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
+1. **Install dependencies:**
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
+
+2. **Configure environment variables:**
+   Copy `.env.example` to `.env` and `.env.local`, then fill in your credentials.
+
+3. **Run database migrations (if necessary):**
+   `npm run prisma:generate` (and deploy schema if required)
+
+4. **Start the development server:**
    `npm run dev`
+
+5. **Run tests:**
+   `npm run test:ci`

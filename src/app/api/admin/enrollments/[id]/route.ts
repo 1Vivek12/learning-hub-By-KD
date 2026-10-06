@@ -11,9 +11,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const body = await request.json();
 
     if (body.status) {
+      const validStatuses = ['ACTIVE', 'COMPLETED', 'CANCELLED', 'EXPIRED'];
+      if (!validStatuses.includes(body.status)) {
+        return NextResponse.json({ error: "Invalid status value" }, { status: 400 });
+      }
       const enrollment = await EnrollmentService.updateEnrollmentStatus(resolvedParams.id, body.status);
       await AuditService.log({
-        actor: (session!.user as any)?.email,
+        actor: session!.user?.email ?? undefined,
         action: 'ENROLLMENT_STATUS_UPDATED',
         resource: 'Enrollment',
         resourceId: resolvedParams.id,

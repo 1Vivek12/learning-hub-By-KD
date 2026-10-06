@@ -1,10 +1,11 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { HelpCircle, Plus, Search, Loader2, AlertCircle, XCircle } from 'lucide-react';
-import { useAuth } from '@/services/authService';
+import { useSession } from 'next-auth/react';
 
 export const AdminQuizzes: React.FC = () => {
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [lessons, setLessons] = useState<any[]>([]); // simplified for this demo, would normally fetch lessons specifically
   const [search, setSearch] = useState('');

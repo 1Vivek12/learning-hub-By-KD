@@ -9,7 +9,7 @@ export default function AdminPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
 
-  const role = (session?.user as any)?.role as string | undefined;
+  const role = session?.user?.role as string | undefined;
   const isAdmin = role === 'ADMIN' || role === 'SUPER_ADMIN';
 
   // Loading state — wait for session to resolve before rendering

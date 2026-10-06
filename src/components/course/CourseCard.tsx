@@ -2,7 +2,6 @@ import React from 'react';
 import Link from 'next/link';
 import { Course, Instructor } from '@/types';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { useAuth } from '@/services/authService';
 import { Star, Clock, BookOpen, ArrowRight, CheckCircle2, ShieldCheck } from 'lucide-react';
 
 interface CourseCardProps {
@@ -10,6 +9,7 @@ interface CourseCardProps {
   instructor?: Instructor;
   onSelect: (slug: string) => void;
   onEnrollClick?: (course: Course) => void;
+  isEnrolled?: boolean;
 }
 
 export const CourseCard: React.FC<CourseCardProps> = ({
@@ -17,10 +17,10 @@ export const CourseCard: React.FC<CourseCardProps> = ({
   instructor,
   onSelect,
   onEnrollClick,
+  isEnrolled = false,
 }) => {
   const { t, l } = useLanguage();
-  const { isEnrolled } = useAuth();
-  const enrolled = isEnrolled(course.id);
+  const enrolled = isEnrolled;
 
   return (
     <div

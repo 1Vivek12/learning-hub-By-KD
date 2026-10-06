@@ -1,10 +1,8 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { Mail, Shield, Check, Loader2, AlertCircle } from 'lucide-react';
-import { useAuth } from '@/services/authService';
 
 export const EmailPreferences: React.FC = () => {
-  const { user } = useAuth();
   const [preferences, setPreferences] = useState({
     emailMarketing: false,
     emailCourseUpdates: true,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { LiveClass, LiveChatMessage } from '@/types';
 import { useLanguage } from '@/i18n/LanguageContext';
-import { useAuth } from '@/services/authService';
+import { useSession } from 'next-auth/react';
 import {
   Camera,
   CameraOff,
@@ -49,7 +49,9 @@ export const VirtualClassroom: React.FC<VirtualClassroomProps> = ({
   onLeaveRoom,
 }) => {
   const { t, l } = useLanguage();
-  const { user, isAdmin } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user as any;
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN';
 
   // Connection state
   const [connectionState, setConnectionState] = useState<ConnectionState>('idle');

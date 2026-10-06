@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { prisma } from '@/lib/db/prisma';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://learninghub.io';
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://learning-hub-by-kd.vercel.app';
 
   // Fetch published courses — gracefully degrade if DB is not available (e.g. during CI build)
   let courseUrls: MetadataRoute.Sitemap = [];

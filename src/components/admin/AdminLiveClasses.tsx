@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect, useCallback } from 'react';
-import { useAuth } from '@/services/authService';
+import { useSession } from 'next-auth/react';
 import { useLanguage } from '@/i18n/LanguageContext';
 import {
   Radio, Plus, Play, Square, Clock, Copy, Check, Calendar, Users, Video, Loader2, AlertCircle
@@ -11,7 +11,8 @@ interface AdminLiveClassesProps {
 }
 
 export const AdminLiveClasses: React.FC<AdminLiveClassesProps> = ({ onJoinRoom }) => {
-  const { user } = useAuth();
+  const { data: session } = useSession();
+  const user = session?.user;
   const { l } = useLanguage();
   
   const [classes, setClasses] = useState<any[]>([]);

@@ -6,8 +6,11 @@ export class CourseAccessService {
    */
   static async hasActiveEnrollment(userId: string, courseId: string): Promise<boolean> {
     const enrollment = await prisma.enrollment.findUnique({
-      where: { userId_courseId: { userId, courseId } }
+      where: { userId_courseId: { userId, courseId } },
+      include: { course: true } // Need course status
     });
+
+    if (enrollment?.course?.status !== 'PUBLISHED') return false; // Security Fix: Draft courses are inaccessible even to enrolled students
 
     return enrollment?.status === 'ACTIVE' || enrollment?.status === 'COMPLETED';
   }
@@ -23,13 +26,19 @@ export class CourseAccessService {
 
     if (!lesson) return false;
 
-    // Free preview logic
+    // Security Fix: Enforce publication hierarchy. 
+    // DRAFT content is strictly inaccessible via standard student paths.
+    if (lesson.status !== 'PUBLISHED' || lesson.module.course.status !== 'PUBLISHED') {
+      return false; 
+    }
+
+    // Free preview logic (only applies to PUBLISHED content now)
     if (lesson.isFreePreview) return true;
 
     // If not free preview, we need a user
     if (!userId) return false;
 
-    // Check enrollment
+    // Check enrollment (which also verifies course is PUBLISHED)
     const courseId = lesson.module.courseId;
     return this.hasActiveEnrollment(userId, courseId);
   }

@@ -27,6 +27,20 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { lessonId, title, instructions, passingScore, timeLimitMins, questions } = body;
     
+    if (!lessonId || typeof title !== 'string') {
+      return NextResponse.json({ error: "lessonId and title are required" }, { status: 400 });
+    }
+
+    if (!Array.isArray(questions)) {
+      return NextResponse.json({ error: "questions must be an array" }, { status: 400 });
+    }
+    
+    for (const q of questions) {
+      if (!Array.isArray(q.options)) {
+        return NextResponse.json({ error: "Each question must have an options array" }, { status: 400 });
+      }
+    }
+    
     // Safety check - verify lesson doesn't already have a quiz
     const existing = await prisma.quiz.findUnique({ where: { lessonId } });
     if (existing) {

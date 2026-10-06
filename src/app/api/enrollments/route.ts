@@ -6,7 +6,7 @@ export async function GET() {
   try {
     const { session, errorResponse } = await getApiSession();
     if (errorResponse) return errorResponse;
-    const enrollments = await EnrollmentService.getEnrollmentsByUser((session!.user as any).id);
+    const enrollments = await EnrollmentService.getEnrollmentsByUser(session!.user.id);
     return NextResponse.json(enrollments);
   } catch (error: any) {
     
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Course ID required" }, { status: 400 });
     }
     
-    const enrollment = await EnrollmentService.createEnrollment((session!.user as any).id, courseId);
+    const enrollment = await EnrollmentService.createEnrollment(session!.user.id, courseId);
     return NextResponse.json(enrollment, { status: 201 });
   } catch (error: any) {
     

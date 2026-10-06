@@ -44,15 +44,22 @@ export async function POST(request: Request) {
       _max: { order: true },
     });
     
+    const safeData = {
+      titleEn: body.titleEn,
+      titleHi: body.titleHi,
+      titleHinglish: body.titleHinglish,
+      courseId: body.courseId,
+    };
+
     const mod = await prisma.courseModule.create({
       data: {
-        ...body,
+        ...safeData,
         order: (maxOrder._max.order || 0) + 1,
       },
     });
     
     await AuditService.log({
-      actor: (session!.user as any)?.email,
+      actor: session!.user?.email ?? undefined,
       action: 'MODULE_CREATED',
       resource: 'CourseModule',
       resourceId: mod.id,
