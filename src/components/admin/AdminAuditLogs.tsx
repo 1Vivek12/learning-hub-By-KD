@@ -41,14 +41,14 @@ export const AdminAuditLogs: React.FC = () => {
               {logs.map((log) => (
                 <tr key={log.id} className="hover:bg-white/5 transition-colors">
                   <td className="p-4 font-mono font-bold text-sky-400 text-[11px]">{log.id}</td>
-                  <td className="p-4 font-medium text-slate-200">{log.adminEmail}</td>
+                  <td className="p-4 font-medium text-slate-200">{log.actor || 'System'}</td>
                   <td className="p-4">
                     <span className="px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 font-mono text-[10px] font-bold border border-amber-500/30">
                       {log.action}
                     </span>
                   </td>
-                  <td className="p-4 text-slate-300 max-w-md leading-relaxed">{log.details}</td>
-                  <td className="p-4 font-mono text-slate-500 text-[11px]">{log.timestamp}</td>
+                  <td className="p-4 text-slate-300 max-w-md leading-relaxed">{typeof log.details === 'object' && log.details !== null ? JSON.stringify(log.details) : String(log.details || '')}</td>
+                  <td className="p-4 font-mono text-slate-500 text-[11px]">{new Date(log.createdAt || log.timestamp).toLocaleString()}</td>
                 </tr>
               ))}
             </tbody>

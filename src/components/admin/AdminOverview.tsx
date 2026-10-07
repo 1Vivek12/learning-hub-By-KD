@@ -185,12 +185,12 @@ export const AdminOverview: React.FC<{ onNavigateTab: (tab: string) => void }> =
                   <span className="font-mono text-[10px] font-bold text-amber-400 uppercase">
                     {log.action}
                   </span>
-                  <span className="text-[10px] font-mono text-slate-500">{log.timestamp}</span>
+                  <span className="text-[10px] font-mono text-slate-500">{new Date(log.createdAt || log.timestamp).toLocaleString()}</span>
                 </div>
                 <p className="text-slate-300 dark:text-slate-300 light:text-slate-700">
-                  {log.details}
+                  {typeof log.details === 'object' && log.details !== null ? JSON.stringify(log.details) : String(log.details || '')}
                 </p>
-                <span className="text-[10px] text-slate-500">By: {log.adminEmail}</span>
+                <span className="text-[10px] text-slate-500">Actor ID: {log.actor || 'System'}</span>
               </div>
             ))}
           </div>
