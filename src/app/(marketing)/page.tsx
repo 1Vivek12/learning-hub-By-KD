@@ -6,6 +6,7 @@ import { Course, LiveClass } from '@/types';
 import { useLanguage } from '@/i18n/LanguageContext';
 import ImmersiveHeroSection from '@/components/home/ImmersiveHeroSection';
 import ImmersiveCourseOrbit from '@/components/home/ImmersiveCourseOrbit';
+import ImmersiveScrollStory from '@/components/home/ImmersiveScrollStory';
 import { 
   ArrowRight, 
   PlayCircle, 
@@ -50,6 +51,8 @@ export default function HomePage() {
       {/* 1. HERO                                          */}
       {/* ──────────────────────────────────────────────── */}
       <ImmersiveHeroSection featuredCourse={featuredCourse} />
+
+      <ImmersiveScrollStory />
 
       <ImmersiveCourseOrbit courses={courses} />
 
