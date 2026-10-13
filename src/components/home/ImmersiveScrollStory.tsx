@@ -147,17 +147,17 @@ export default function ImmersiveScrollStory() {
     <section ref={storyRef} aria-label="Learning Hub immersive story" className="relative h-[360vh] bg-[#070b18] text-white">
       <div className="sticky top-0 h-[100svh] min-h-[620px] overflow-hidden">
         <div ref={hostRef} className="absolute inset-0" aria-hidden="true" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_45%,rgba(8,145,178,0.13),transparent_38%),linear-gradient(90deg,rgba(7,11,24,0.94),rgba(7,11,24,0.48)_55%,rgba(7,11,24,0.15))]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_67%_45%,rgba(77,153,219,0.12),transparent_34%),linear-gradient(90deg,rgba(5,10,20,0.96)_0%,rgba(5,10,20,0.78)_33%,rgba(5,10,20,0.16)_72%,rgba(5,10,20,0.08)_100%)]" />
         <div className="pointer-events-none absolute inset-0 opacity-[0.12] [background-image:linear-gradient(rgba(148,163,184,0.18)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.18)_1px,transparent_1px)] [background-size:52px_52px]" />
-        <div className="relative z-10 mx-auto flex h-full max-w-7xl items-center px-5 py-20 sm:px-8 lg:px-10">
+        <div className="relative z-10 mx-auto flex h-full max-w-[1440px] items-center px-6 py-20 sm:px-10 lg:px-[7.2vw]">
           <div className="max-w-2xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-200/20 bg-slate-950/45 px-4 py-2 text-[10px] font-extrabold uppercase tracking-[0.24em] text-cyan-100 backdrop-blur-xl">
+            <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-white/15 bg-[#0a1220]/45 px-4 py-2.5 text-[10px] font-semibold uppercase tracking-[0.19em] text-[#c6eaf5] backdrop-blur-2xl">
               <Icon className="h-4 w-4" /> {chapter.eyebrow}
             </div>
             <div aria-live="polite" aria-atomic="true" key={activeChapter} className="animate-[storyReveal_650ms_ease_both]">
-              <h2 className="max-w-2xl text-4xl font-black leading-[1.02] tracking-[-0.055em] sm:text-6xl lg:text-7xl">{chapter.title}</h2>
-              <p className="mt-6 max-w-lg text-base leading-7 text-slate-300 sm:text-lg sm:leading-8">{chapter.body}</p>
-              <Link href={chapter.href} className="pointer-events-auto mt-8 inline-flex min-h-12 items-center gap-3 rounded-xl bg-cyan-300 px-6 py-3 text-sm font-extrabold text-slate-950 transition hover:-translate-y-0.5 hover:bg-cyan-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-100">
+              <h2 className="max-w-[10ch] text-[clamp(2.8rem,5.2vw,5.4rem)] font-medium leading-[0.98] tracking-[-0.065em] text-white [text-wrap:balance] sm:max-w-[11ch]">{chapter.title}</h2>
+              <p className="mt-7 max-w-[30rem] text-[0.98rem] font-normal leading-[1.8] tracking-[-0.01em] text-slate-300/90 sm:text-[1.05rem]">{chapter.body}</p>
+              <Link href={chapter.href} className="pointer-events-auto mt-8 inline-flex min-h-12 items-center gap-3 rounded-full bg-[#eaf8ff] px-6 py-3 text-[13px] font-semibold tracking-[-0.01em] text-[#09111e] shadow-[0_8px_40px_rgba(125,211,252,0.16)] transition hover:-translate-y-0.5 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-100">
                 {chapter.cta}<ArrowRight className="h-4 w-4" />
               </Link>
             </div>
