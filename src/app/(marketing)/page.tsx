@@ -4,6 +4,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Course, LiveClass } from '@/types';
 import { useLanguage } from '@/i18n/LanguageContext';
+import ImmersiveHeroSection from '@/components/home/ImmersiveHeroSection';
+import ImmersiveCourseOrbit from '@/components/home/ImmersiveCourseOrbit';
+import ImmersiveScrollStory from '@/components/home/ImmersiveScrollStory';
 import { 
   ArrowRight, 
   PlayCircle, 
@@ -47,104 +50,11 @@ export default function HomePage() {
       {/* ──────────────────────────────────────────────── */}
       {/* 1. HERO                                          */}
       {/* ──────────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-white dark:bg-[#070b14] border-b border-slate-200 dark:border-white/5">
-        {/* Background image — editorial workspace photography */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src="/images/hero-learning.jpg"
-            alt=""
-            aria-hidden="true"
-            className="w-full h-full object-cover object-center"
-            loading="eager"
-          />
-          <div className="absolute inset-0 bg-white/85 dark:bg-[#070b14]/90" />
-        </div>
+      <ImmersiveHeroSection featuredCourse={featuredCourse} />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 lg:px-8 pt-20 pb-24 lg:pt-32 lg:pb-32">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-12 items-center">
-            
-            {/* Left Content */}
-            <div className="lg:col-span-6 space-y-8">
-              <span className="text-[11px] font-extrabold tracking-[0.2em] uppercase text-sky-700 dark:text-sky-400">
-                {t('hero.eyebrow')}
-              </span>
-              
-              <h1 className="text-4xl sm:text-5xl lg:text-[3.5rem] font-extrabold text-slate-900 dark:text-white leading-[1.1] tracking-tight">
-                {t('hero.title')}
-              </h1>
-              
-              <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed max-w-lg font-medium">
-                {t('hero.description')}
-              </p>
-              
-              <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
-                <Link
-                  href="/courses"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-white bg-slate-900 hover:bg-slate-800 dark:text-slate-950 dark:bg-sky-400 dark:hover:bg-sky-300 transition-colors focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
-                >
-                  <span>{t('hero.ctaPrimary')}</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link
-                  href="/live-list"
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-bold text-slate-700 bg-white/80 hover:bg-white dark:text-white dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 transition-colors focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none backdrop-blur-sm"
-                >
-                  <Video className="w-4 h-4 text-sky-600 dark:text-sky-400" />
-                  <span>{t('hero.ctaSecondary')}</span>
-                </Link>
-              </div>
-            </div>
+      <ImmersiveScrollStory />
 
-            {/* Right Content — Featured Course Preview */}
-            <div className="lg:col-span-6 relative flex justify-center lg:justify-end">
-              {featuredCourse ? (
-                <div className="relative w-full max-w-lg rounded-2xl overflow-hidden border border-slate-200 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-900 transform lg:rotate-1 hover:rotate-0 transition-transform duration-500">
-                  <div className="aspect-video relative overflow-hidden group border-b border-slate-100 dark:border-white/5">
-                    <img
-                      src={featuredCourse.thumbnail}
-                      alt={l(featuredCourse.title, 'Featured Course')}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      loading="lazy"
-                    />
-                    <div className="absolute top-4 left-4">
-                      <span className="inline-block px-3 py-1.5 rounded-lg bg-white/90 dark:bg-slate-900/90 backdrop-blur-md text-slate-900 dark:text-white text-[10px] font-bold uppercase tracking-wider shadow-sm border border-slate-200 dark:border-white/10">
-                        {featuredCourse.category || 'Featured'}
-                      </span>
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                  </div>
-                  <div className="p-6 sm:p-8 bg-white dark:bg-slate-900">
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 line-clamp-1">
-                      {l(featuredCourse.title)}
-                    </h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 font-medium mb-6 line-clamp-1">
-                      {l(featuredCourse.shortDescription)}
-                    </p>
-                    <div className="flex items-center justify-between border-t border-slate-100 dark:border-white/5 pt-6">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1.5 rounded-lg">
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>{t('hero.certBadge')}</span>
-                      </div>
-                      <Link
-                        href={`/courses/${featuredCourse.slug}`}
-                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-bold text-sky-700 bg-sky-50 hover:bg-sky-100 dark:text-sky-400 dark:bg-sky-500/10 dark:hover:bg-sky-500/20 transition-colors focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:outline-none"
-                      >
-                        {t('hero.viewCourse')}
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="w-full max-w-lg aspect-video rounded-2xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 flex flex-col items-center justify-center p-8 text-center shadow-sm">
-                  <MonitorPlay className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-4" />
-                  <p className="text-slate-500 dark:text-slate-400 font-medium">{t('home.courses.empty')}</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
+      <ImmersiveCourseOrbit courses={courses} />
 
       {/* ──────────────────────────────────────────────── */}
       {/* 2. COURSE DISCOVERY                              */}

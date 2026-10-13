@@ -1,18 +1,19 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Manrope, Sora } from "next/font/google";
 import "../index.css";
 import { ThemeProvider } from "@/theme/ThemeContext";
 import { LanguageProvider } from "@/i18n/LanguageContext";
 
 import { NextAuthProvider } from "@/components/providers/NextAuthProvider";
 
-const inter = Inter({ subsets: ["latin"] });
+const manrope = Manrope({ subsets: ["latin"], variable: "--font-manrope", display: "swap" });
+const sora = Sora({ subsets: ["latin"], variable: "--font-sora", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://learning-hub-by-kd.vercel.app'),
   title: {
-    default: "Learning Hub - Cinematic EdTech",
-    template: "%s | Learning Hub",
+    default: "Learning Hub by KD — Learn. Build. Grow.",
+    template: "%s | Learning Hub by KD",
   },
   description: "Advanced Learning Management System featuring 3D visuals, live masterclasses, and certified credentials.",
   keywords: ["edtech", "learning", "courses", "masterclasses", "technology"],
@@ -22,9 +23,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: "/",
-    title: "Learning Hub - Cinematic EdTech",
+    title: "Learning Hub by KD — Learn. Build. Grow.",
     description: "Advanced Learning Management System featuring 3D visuals, live masterclasses, and certified credentials.",
-    siteName: "Learning Hub",
+    siteName: "Learning Hub by KD",
     images: [
       {
         url: "/og-image.jpg",
@@ -81,7 +82,7 @@ export default function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${manrope.variable} ${sora.variable}`}>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
